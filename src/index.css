@@ -1,0 +1,450 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  html, body, main, div, section, [class*="overflow-y-auto"], [class*="overflow-auto"] {
+    scroll-behavior: smooth !important;
+  }
+
+  html {
+    scroll-behavior: smooth;
+    overflow-y: auto;
+  }
+
+  body {
+    min-height: 100vh;
+    margin: 0;
+    padding: 0;
+    font-size: 16px;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    font-family: 'Plus Jakarta Sans', 'Outfit', 'Inter', system-ui, -apple-system, sans-serif;
+    -webkit-overflow-scrolling: touch;
+    scroll-behavior: smooth;
+  }
+}
+
+/* Custom Scrollbar for Light Command Center UI */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: #f1f5f9;
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #94a3b8;
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #64748b;
+}
+
+/* CCTV Screen Scanline & Noise Effect */
+.cctv-overlay {
+  background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.15) 50%), linear-gradient(90deg, rgba(255, 0, 0, 0.02), rgba(0, 255, 0, 0.01), rgba(0, 0, 255, 0.02));
+  background-size: 100% 2px, 3px 100%;
+  pointer-events: none;
+}
+
+/* Radar Sweep Keyframe */
+@keyframes radar-sweep {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+.animate-radar {
+  animation: radar-sweep 4s linear infinite;
+}
+
+/* Pulsing Red Dot for Alerts */
+@keyframes pulse-glow {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50% { opacity: 0.4; transform: scale(1.2); }
+}
+
+.pulse-alert {
+  animation: pulse-glow 1.5s ease-in-out infinite;
+}
+
+/* Leaflet Map Light Styling */
+.leaflet-container {
+  background: #f1f3f5 !important;
+  font-family: 'Inter', sans-serif !important;
+}
+
+.leaflet-popup-content-wrapper {
+  background: #ffffff !important;
+  color: #111827 !important;
+  border: 1px solid #e2e8f0 !important;
+  border-radius: 10px !important;
+  box-shadow: 0 10px 25px -5px rgba(0,0,0,0.1) !important;
+}
+
+.leaflet-popup-tip {
+  background: #ffffff !important;
+}
+
+/* Attendance login artwork is intentionally kept on a fixed canvas so browser
+   zoom does not reflow the split-screen composition. */
+.attendance-login-page {
+  min-width: 1100px;
+  background: #f8fafc;
+  flex-direction: row !important;
+}
+
+.attendance-login-left {
+  width: 52.5% !important;
+  min-width: 578px;
+  padding: 76px 76px 44px !important;
+  background:
+    radial-gradient(circle at 12% 12%, rgba(255,255,255,.92) 0 22%, transparent 48%),
+    linear-gradient(135deg, #eef6ff 0%, #e4efff 52%, #d5e7ff 100%) !important;
+}
+
+.attendance-login-left::after {
+  content: "";
+  position: absolute;
+  left: -8%;
+  right: -8%;
+  bottom: -17%;
+  height: 39%;
+  border-radius: 50% 50% 0 0 / 55% 55% 0 0;
+  background: linear-gradient(180deg, #8ec5ff 0%, #3b82f6 72%);
+  transform: rotate(-3deg);
+  pointer-events: none;
+  z-index: 1;
+}
+
+.attendance-login-left::before {
+  content: "";
+  position: absolute;
+  left: -8%;
+  right: -8%;
+  bottom: -11%;
+  height: 27%;
+  border-radius: 50% 50% 0 0 / 60% 60% 0 0;
+  border-top: 9px solid rgba(255,255,255,.82);
+  pointer-events: none;
+  z-index: 2;
+}
+
+.attendance-purpose-button {
+  visibility: hidden;
+}
+
+.attendance-login-brand {
+  width: 100%;
+  max-width: none !important;
+  margin-top: 42px !important;
+  margin-bottom: 0 !important;
+}
+
+.attendance-login-brand h1 {
+  font-size: 2.9rem !important;
+  line-height: .98 !important;
+  letter-spacing: -.055em !important;
+  white-space: nowrap;
+}
+
+.attendance-login-brand > div:first-child {
+  margin-bottom: 12px !important;
+}
+
+.attendance-login-brand > div:first-child > div {
+  width: 66px !important;
+  height: 66px !important;
+  border-radius: 0 !important;
+  background: transparent !important;
+  box-shadow: none !important;
+  color: #1769e8 !important;
+}
+
+.attendance-login-brand > div:first-child svg {
+  width: 64px !important;
+  height: 64px !important;
+  color: #1769e8 !important;
+}
+
+.attendance-login-brand p {
+  font-size: .98rem !important;
+  color: #6b83a6 !important;
+  letter-spacing: .01em !important;
+}
+
+.attendance-login-brand p span.text-blue-400 {
+  color: #7b9bc8 !important;
+}
+
+.attendance-login-brand .text-blue-600 {
+  color: #1769e8 !important;
+}
+
+.attendance-login-brand .text-slate-900 {
+  color: #102d50 !important;
+}
+
+.attendance-login-brand > div:last-child {
+  margin-top: 44px !important;
+  margin-left: 5px;
+}
+
+.attendance-login-illustration {
+  margin-top: 0 !important;
+  padding-top: 0 !important;
+  transform: translateY(8px) scale(1.13);
+  transform-origin: center bottom;
+  z-index: 3 !important;
+}
+
+.attendance-login-illustration > div {
+  max-width: 650px !important;
+}
+
+.attendance-login-right {
+  width: 47.5% !important;
+  min-width: 522px;
+  padding: 0 !important;
+  background: #fbfdff !important;
+  justify-content: flex-start !important;
+}
+
+.attendance-login-right > div {
+  margin-top: 94px !important;
+  margin-bottom: 0 !important;
+  width: 510px !important;
+  max-width: none !important;
+}
+
+.attendance-login-card {
+  width: 510px;
+  min-height: 578px;
+  padding: 43px 40px 39px !important;
+  border-radius: 14px !important;
+  border-color: #e2ebf7 !important;
+  box-shadow: 0 8px 28px rgba(80, 126, 184, .12) !important;
+}
+
+.attendance-login-card h2 {
+  color: #102d50 !important;
+  font-size: 2.25rem !important;
+  margin-top: 8px;
+}
+
+.attendance-login-card h2 + p {
+  color: #7188aa !important;
+  font-size: 1rem !important;
+  margin-bottom: 35px !important;
+}
+
+.attendance-login-card form {
+  gap: 18px;
+}
+
+.attendance-login-card form > div > div {
+  height: 56px;
+}
+
+.attendance-login-card form input {
+  height: 56px;
+  border-radius: 11px;
+  background: #fff;
+  border-color: #d5e0ed;
+  color: #173555;
+  font-size: 1rem;
+  padding-left: 56px;
+}
+
+.attendance-login-card form input::placeholder {
+  color: #9aabc2;
+}
+
+.attendance-login-card form input:focus {
+  border-color: #2d78e9;
+  box-shadow: 0 0 0 4px rgba(45, 120, 233, .1);
+}
+
+.attendance-login-card form svg {
+  color: #8095b2;
+}
+
+.attendance-login-card form > button[type="submit"] {
+  height: 56px;
+  margin-top: 1px;
+  border-radius: 10px;
+  background: linear-gradient(90deg, #2b78e9, #2874df);
+  font-size: 1.05rem;
+  box-shadow: 0 7px 16px rgba(43, 120, 233, .25);
+}
+
+.attendance-login-card form > button[type="submit"]:hover {
+  background: linear-gradient(90deg, #216bd8, #1c63cb);
+}
+
+.attendance-login-card .relative.flex.items-center {
+  margin: 22px 0 !important;
+}
+
+.attendance-login-card .relative.flex.items-center span {
+  color: #9aabc2 !important;
+}
+
+.attendance-login-card .text-center > button:first-child {
+  display: none;
+}
+
+@media (max-height: 700px) {
+  .attendance-login-card {
+    transform: scale(.9);
+  }
+
+  .attendance-login-brand {
+    margin-top: 12px !important;
+  }
+}
+
+/* Premium attendance sign-in treatment. The fixed canvas preserves the
+   composition during browser zoom while text remains naturally scalable. */
+.attendance-login-page {
+  background: #f7faff;
+  color: #112b4b;
+}
+
+.attendance-login-left {
+  background:
+    radial-gradient(circle at 18% 14%, rgba(255, 255, 255, .95) 0 16%, transparent 42%),
+    radial-gradient(circle at 86% 18%, rgba(186, 218, 255, .55), transparent 36%),
+    linear-gradient(145deg, #f3f8ff 0%, #e8f2ff 52%, #dbeaff 100%) !important;
+  border-right: 1px solid rgba(176, 205, 239, .5);
+}
+
+.attendance-login-left::after {
+  background: linear-gradient(180deg, #a8d2ff 0%, #4d96f2 78%);
+  opacity: .82;
+}
+
+.attendance-login-left::before {
+  border-top-color: rgba(255, 255, 255, .92);
+}
+
+.attendance-login-brand {
+  margin-top: 56px !important;
+}
+
+.attendance-login-brand h1 {
+  font-size: 3.05rem !important;
+  font-weight: 800 !important;
+  letter-spacing: -.06em !important;
+}
+
+.attendance-login-brand p {
+  color: #7086a5 !important;
+  font-weight: 600 !important;
+}
+
+.attendance-login-brand > div:last-child {
+  margin-top: 36px !important;
+  opacity: .9;
+}
+
+.attendance-login-illustration {
+  transform: translateY(17px) scale(1.08);
+  filter: saturate(.9) drop-shadow(0 18px 18px rgba(44, 91, 145, .13));
+}
+
+.attendance-login-right {
+  background:
+    radial-gradient(circle at 82% 10%, rgba(226, 239, 255, .72), transparent 34%),
+    #fbfdff !important;
+}
+
+.attendance-login-right > div {
+  margin-top: 82px !important;
+}
+
+.attendance-login-card {
+  min-height: 570px;
+  padding: 42px 42px 34px !important;
+  border: 1px solid rgba(211, 226, 244, .9) !important;
+  border-radius: 20px !important;
+  box-shadow:
+    0 24px 60px rgba(58, 102, 153, .10),
+    0 4px 12px rgba(58, 102, 153, .05) !important;
+}
+
+.attendance-login-card::before {
+  content: "";
+  position: absolute;
+  inset: 0 0 auto;
+  height: 4px;
+  border-radius: 20px 20px 0 0;
+  background: linear-gradient(90deg, #266fe0, #69b4ff);
+}
+
+.attendance-login-card > div:first-child > div {
+  width: 62px !important;
+  height: 62px !important;
+  border-radius: 18px !important;
+  background: linear-gradient(145deg, #2d7bea, #145cc9) !important;
+  box-shadow: 0 12px 24px rgba(37, 111, 222, .24) !important;
+}
+
+.attendance-login-card > div:first-child svg:first-child {
+  opacity: .18;
+}
+
+.attendance-login-card h2 {
+  font-size: 2.2rem !important;
+  font-weight: 800 !important;
+  letter-spacing: -.045em !important;
+}
+
+.attendance-login-card h2 + p {
+  color: #8093ad !important;
+  font-size: .96rem !important;
+  font-weight: 600 !important;
+}
+
+.attendance-login-card form {
+  gap: 16px !important;
+}
+
+.attendance-login-card form input {
+  background: #fbfdff !important;
+  border-color: #d9e4f1 !important;
+  box-shadow: inset 0 1px 2px rgba(33, 71, 113, .025);
+}
+
+.attendance-login-card form input:hover {
+  border-color: #b9cce3;
+}
+
+.attendance-login-card form input:focus {
+  background: #fff !important;
+}
+
+.attendance-login-card form > button[type="submit"] {
+  margin-top: 5px;
+  background: linear-gradient(100deg, #2675e8, #3e8cf0) !important;
+  box-shadow: 0 12px 22px rgba(38, 117, 232, .22) !important;
+  transition: transform .2s ease, box-shadow .2s ease, filter .2s ease;
+}
+
+.attendance-login-card form > button[type="submit"]:hover {
+  transform: translateY(-1px);
+  filter: brightness(1.03);
+  box-shadow: 0 15px 28px rgba(38, 117, 232, .28) !important;
+}
+
+.attendance-login-card .relative.flex.items-center {
+  margin: 24px 0 !important;
+}
+
+.attendance-login-card .text-center > div:last-child {
+  color: #8b9bb0 !important;
+}
