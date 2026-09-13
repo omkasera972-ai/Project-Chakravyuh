@@ -201,9 +201,11 @@ def get_motor_client() -> Optional[AsyncIOMotorClient]:
             return None
         except Exception as e:
             logger.error(f"Unexpected Motor Client Error: {e}")
-            use_local = True
             return None
     return client
+
+# Pre-initialize Motor Async Client
+get_motor_client()
 
 class SmartProxyCollection:
     def __init__(self, db_name: str, coll_name: str):
@@ -333,15 +335,16 @@ async def ensure_mongodb_indexes():
     """
     Ensures single/compound indexes on admin_id across all collections for <10ms query execution.
     """
-    if client is None:
+    c = get_motor_client()
+    if c is None:
         return
     dbs = [db_attendance, db_criminal, db_anpr, db_missing, db_defence]
     for db in dbs:
         try:
             colls = await db.list_collection_names()
-            for c in colls:
-                if not c.startswith("system."):
-                    await db[c].create_index([("admin_id", 1)], background=True)
+            for coll in colls:
+                if not coll.startswith("system."):
+                    await db[coll].create_index([("admin_id", 1)], background=True)
         except Exception as e:
             logger.warning(f"[INDEX CREATION NOTICE] {e}")
 
@@ -368,7 +371,8 @@ async def check_database_health() -> Dict[str, Any]:
     Asynchronously checks the connection status, cluster ping, and latency
     for MongoDB Atlas and all 5 distinct databases.
     """
-    if client is None:
+    c = get_motor_client()
+    if c is None:
         return {
             "status": "unhealthy",
             "message": "MongoDB client is uninitialized",
@@ -379,7 +383,7 @@ async def check_database_health() -> Dict[str, Any]:
     start_time = time.time()
     try:
         # Send ping to cluster admin database
-        ping_res = await client.admin.command('ping')
+        ping_res = await c.admin.command('ping')
         latency_ms = round((time.time() - start_time) * 1000, 2)
 
         return {
@@ -426,14 +430,15 @@ async def verify_db_connection(max_retries: int = 3, retry_delay: float = 1.0) -
     Pings MongoDB Atlas with configurable retry logic and clean exception handling.
     """
     global use_local
-    if client is None:
+    c = get_motor_client()
+    if c is None:
         use_local = True
         return False, "MongoDB client is uninitialized"
 
     for attempt in range(1, max_retries + 1):
         try:
             logger.info(f"Connecting to MongoDB Atlas (Attempt {attempt}/{max_retries})...")
-            await client.admin.command('ping')
+            await c.admin.command('ping')
             use_local = False
             logger.info("✅ [SUCCESS] Successfully connected to MongoDB Atlas Cluster!")
             return True, "Connected to MongoDB Atlas Cloud Cluster"
