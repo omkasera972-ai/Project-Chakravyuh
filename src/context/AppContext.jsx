@@ -1713,6 +1713,41 @@ export const AppProvider = ({ children }) => {
     missingChildren: { value: String(missingChildren.filter(m => m.status === 'Missing').length), label: 'Missing Children', subtext: 'Active Cases' },
   };
 
+  const addInventory = async (item) => {
+    const record = {
+      id: item.id || `DEP-${Math.floor(1000 + Math.random() * 9000)}`,
+      module: 'defence',
+      item: item.item || item.name || 'Tactical Asset',
+      name: item.name || item.item || 'Tactical Asset',
+      category: item.category || 'Armory',
+      quantity: item.quantity ? parseInt(item.quantity) : 1,
+      status: item.status || 'SECURE & AUDITED',
+      location: item.location || 'Armory Vault 1'
+    };
+
+    try {
+      const res = await authFetch('http://127.0.0.1:8000/api/defence/inventory', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(record)
+      });
+      const data = await res.json();
+      if (res.ok && (data.status === 'success' || data._id || data.data)) {
+        setDepotInventory(prev => [record, ...prev.filter(i => i.id !== record.id)]);
+        showToast('Asset Registered', `Inventory item ${record.item} saved to MongoDB Atlas.`, 'success');
+        return { success: true, data: record };
+      } else {
+        throw new Error(data.detail || 'Failed to save inventory asset');
+      }
+    } catch (e) {
+      console.error('Error saving inventory asset to MongoDB:', e);
+      showToast('Inventory Save Error', `Could not save asset: ${e.message}`, 'error');
+      return { success: false, error: e.message };
+    }
+  };
+
+  const addVehicle = addVehicleRecord;
+
   return (
     <AppContext.Provider
       value={{
@@ -1776,7 +1811,9 @@ export const AppProvider = ({ children }) => {
         addMissingChild,
         deleteMissingChild,
         addDetectionReport,
+        addVehicle,
         addVehicleRecord,
+        addInventory,
         addAnprScan,
         addAttendanceScan,
         addCriminalDetection,
