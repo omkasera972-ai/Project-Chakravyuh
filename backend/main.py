@@ -28,13 +28,18 @@ app = FastAPI(
     version="2.0.0"
 )
 
-# Configure CORS middleware (allowing all origins * for testing)
+# Explicit CORS Middleware Setup (Fixes Vercel Cross-Origin Preflight Issues)
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],
+    allow_origins=[
+        "https://project-chakravyuh.vercel.app",
+        "http://localhost:5173",
+        "*"
+    ],
     allow_credentials=True,
-    allow_methods=["*"],
+    allow_methods=["GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH"],
     allow_headers=["*"],
+    expose_headers=["*"]
 )
 
 # Startup Event: Import and execute database health check on startup
@@ -58,16 +63,16 @@ async def startup_db_event():
     await seed_all_databases()
 
 # Register all 5 dedicated router modules with proper API prefixes
-app.include_router(attendance_router, prefix="/api/attendance")
-app.include_router(criminal_router, prefix="/api/criminal")
-app.include_router(anpr_router, prefix="/api/anpr")
-app.include_router(missing_children_router, prefix="/api/missing-children")
-app.include_router(defence_router, prefix="/api/defence")
+app.include_router(attendance_router, prefix="/api/attendance", tags=["Attendance Module"])
+app.include_router(criminal_router, prefix="/api/criminal", tags=["Criminal Tracking Module"])
+app.include_router(anpr_router, prefix="/api/anpr", tags=["ANPR System Module"])
+app.include_router(missing_children_router, prefix="/api/missing-children", tags=["Missing Children Module"])
+app.include_router(defence_router, prefix="/api/defence", tags=["Defence Tracker Module"])
 
-# Register auxiliary system routers
-app.include_router(auth_router)
-app.include_router(ai_engine_router)
-app.include_router(modules_router)
+# Register auxiliary system routers with API prefixes to prevent endpoint blocking
+app.include_router(auth_router, prefix="/api/auth", tags=["Auth Module"])
+app.include_router(ai_engine_router, prefix="/api/ai", tags=["AI Engine"])
+app.include_router(modules_router, prefix="/api/modules", tags=["System Modules"])
 
 @app.get("/")
 async def root():
@@ -89,6 +94,7 @@ async def root():
             "anpr_system": "/api/anpr",
             "missing_children": "/api/missing-children",
             "defence_tracker": "/api/defence",
+            "auth": "/api/auth",
             "system_health": "/api/health"
         }
     }
