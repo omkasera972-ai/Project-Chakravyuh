@@ -42,12 +42,11 @@ export const safeSetLocalStorage = (key, value) => {
 };
 
 export const getApiBaseUrl = () => {
-  if (import.meta.env && import.meta.env.VITE_API_BASE_URL) {
-    return import.meta.env.VITE_API_BASE_URL;
-  }
   if (typeof window !== 'undefined' && window.location && window.location.hostname) {
     const host = window.location.hostname;
     if (host && host !== 'localhost' && host !== '127.0.0.1') {
+      // Direct all production API calls to same-origin relative path (/api/...)
+      // This completely eliminates external Render CORS blockages and uses Vercel native serverless API rewrites
       return '';
     }
   }
