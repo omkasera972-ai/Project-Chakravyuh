@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { Car, AlertTriangle, ShieldCheck, Clock, Play, Search, Navigation, FileText, CheckCircle2, AlertCircle, ScanLine, Camera, Zap } from 'lucide-react';
 import { useApp } from '../context/AppContext';
+import { getApiBaseUrl } from '../utils/dateUtils';
 import { StatCard } from '../components/StatCard';
 import { useNavigate } from 'react-router-dom';
 
@@ -25,7 +26,7 @@ export const AnprSystem = () => {
 
     try {
       // Call FastAPI Backend EasyOCR endpoint
-      const res = await fetch('http://127.0.0.1:8000/api/ai/anpr-ocr', {
+      const res = await fetch(`${getApiBaseUrl()}/api/ai/anpr-ocr`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({

@@ -31,6 +31,7 @@ import {
   Smartphone
 } from 'lucide-react';
 import { useApp } from '../context/AppContext';
+import { getApiBaseUrl } from '../utils/dateUtils';
 import { StatCard } from '../components/StatCard';
 import { CctvView } from '../components/CctvView';
 import { CriminalMapSection } from '../components/CriminalMapSection';
@@ -810,7 +811,7 @@ export const CriminalTracking = () => {
           }
 
           // 📲 AUTOMATIC SILENT SERVER-SIDE BACKGROUND DISPATCH VIA BACKEND API (NO BROWSER POPUPS)
-          fetch('http://127.0.0.1:8000/api/alerts/dispatch-auto', {
+          fetch(`${getApiBaseUrl()}/api/alerts/dispatch-auto`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
@@ -1743,7 +1744,7 @@ export const CriminalTracking = () => {
                   <div className="flex flex-wrap items-center justify-between gap-2.5 pt-1">
                     <button
                       onClick={() => {
-                        fetch('http://127.0.0.1:8000/api/alerts/dispatch-auto', {
+                        fetch(`${getApiBaseUrl()}/api/alerts/dispatch-auto`, {
                           method: 'POST',
                           headers: { 'Content-Type': 'application/json' },
                           body: JSON.stringify({
@@ -2344,7 +2345,7 @@ export const CriminalTracking = () => {
               <button
                 type="button"
                 onClick={() => {
-                  fetch('http://127.0.0.1:8000/api/alerts/dispatch-auto', {
+                  fetch(`${getApiBaseUrl()}/api/alerts/dispatch-auto`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({

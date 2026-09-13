@@ -39,14 +39,8 @@ load_dotenv()
 logger = logging.getLogger("chakravyuh_database")
 logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s")
 
-# Fetch MongoDB Connection String from environment variables
-MONGO_URI = os.getenv("MONGO_URI") or os.getenv("MONGODB_URL")
-
-if not MONGO_URI:
-    raise ValueError(
-        "CRITICAL ERROR: 'MONGO_URI' environment variable is missing. "
-        "Please define MONGO_URI in your .env file."
-    )
+# Fetch MongoDB Connection String from environment variables or fallback to Atlas connection
+MONGO_URI = os.getenv("MONGO_URI") or os.getenv("MONGODB_URL") or "mongodb+srv://omkasera972_db_user:mongo_db_userom123@cluster0.xy8twbt.mongodb.net/"
 
 LOCAL_DATA_DIR = os.path.join(os.path.dirname(__file__), "local_data")
 

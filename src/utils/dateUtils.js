@@ -42,10 +42,13 @@ export const safeSetLocalStorage = (key, value) => {
 };
 
 export const getApiBaseUrl = () => {
+  if (import.meta.env && import.meta.env.VITE_API_BASE_URL) {
+    return import.meta.env.VITE_API_BASE_URL;
+  }
   if (typeof window !== 'undefined' && window.location && window.location.hostname) {
     const host = window.location.hostname;
     if (host && host !== 'localhost' && host !== '127.0.0.1') {
-      return `http://${host}:8000`;
+      return '';
     }
   }
   return 'http://127.0.0.1:8000';

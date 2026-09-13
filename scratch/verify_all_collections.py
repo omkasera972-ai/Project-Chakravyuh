@@ -3,7 +3,7 @@ import sys
 import asyncio
 from motor.motor_asyncio import AsyncIOMotorClient
 
-MONGO_URI = "mongodb+srv://omkasera972_db_user:3mw7nBCC8OIfDWxp@cluster0.xy8twbt.mongodb.net/"
+MONGO_URI = os.getenv("MONGO_URI") or "mongodb+srv://omkasera972_db_user:mongo_db_userom123@cluster0.xy8twbt.mongodb.net/"
 
 async def run_verification():
     print("Starting MongoDB Atlas Direct Persistence & Schema Verification...")
