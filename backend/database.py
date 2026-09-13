@@ -170,6 +170,41 @@ class LocalCollection:
         self._save()
         return LocalDeleteResult(deleted_count)
 
+use_local: bool = False
+client: Optional[AsyncIOMotorClient] = None
+
+def get_motor_client() -> Optional[AsyncIOMotorClient]:
+    global client, use_local
+    if use_local:
+        return None
+    if client is None:
+        try:
+            logger.info("Initializing Motor Async Client for MongoDB Atlas...")
+            client = AsyncIOMotorClient(
+                MONGO_URI,
+                serverSelectionTimeoutMS=3000,
+                connectTimeoutMS=3000,
+                socketTimeoutMS=3000,
+                tls=True,
+                tlsAllowInvalidCertificates=True,
+                tlsCAFile=certifi.where() if certifi else None,
+                retryWrites=True,
+                w="majority"
+            )
+        except ConfigurationError as ce:
+            logger.error(f"MongoDB Configuration Error: {ce}")
+            use_local = True
+            return None
+        except PyMongoError as pe:
+            logger.error(f"PyMongo Client Error: {pe}")
+            use_local = True
+            return None
+        except Exception as e:
+            logger.error(f"Unexpected Motor Client Error: {e}")
+            use_local = True
+            return None
+    return client
+
 class SmartProxyCollection:
     def __init__(self, db_name: str, coll_name: str):
         self.db_name = db_name
@@ -178,9 +213,10 @@ class SmartProxyCollection:
 
     def _get_coll(self):
         global use_local
-        if use_local or client is None:
+        c = get_motor_client()
+        if use_local or c is None:
             return self.local_coll
-        return client[self.db_name][self.coll_name]
+        return c[self.db_name][self.coll_name]
 
     async def count_documents(self, filter_query: Dict[str, Any]) -> int:
         global use_local
@@ -279,33 +315,6 @@ class SmartProxyDatabase:
         if coll_name not in self._colls:
             self._colls[coll_name] = SmartProxyCollection(self.db_name, coll_name)
         return self._colls[coll_name]
-
-# Initialize Motor Async Client for MongoDB Atlas
-use_local: bool = False
-client: Optional[AsyncIOMotorClient] = None
-
-try:
-    logger.info("Connecting to MongoDB Atlas Cluster with Motor Async Client...")
-    client = AsyncIOMotorClient(
-        MONGO_URI,
-        serverSelectionTimeoutMS=2000,
-        connectTimeoutMS=2000,
-        socketTimeoutMS=2000,
-        tls=True,
-        tlsAllowInvalidCertificates=True,
-        tlsCAFile=certifi.where() if certifi else None,
-        retryWrites=True,
-        w="majority"
-    )
-except ConfigurationError as ce:
-    logger.error(f"MongoDB Configuration Error: {ce}")
-    use_local = True
-except PyMongoError as pe:
-    logger.error(f"PyMongo Client Error: {pe}")
-    use_local = True
-except Exception as e:
-    logger.error(f"Unexpected Client Error: {e}")
-    use_local = True
 
 # ---------------------------------------------------------
 # Export 5 Distinct Databases (Smart Proxy Enabled for Atlas + Local Fallback)

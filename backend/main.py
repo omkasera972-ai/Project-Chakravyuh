@@ -28,6 +28,10 @@ app = FastAPI(
     version="2.0.0"
 )
 
+from fastapi.responses import JSONResponse
+from fastapi.exceptions import RequestValidationError
+from starlette.exceptions import HTTPException as StarletteHTTPException
+
 # Explicit CORS Middleware Setup with regex to match all origins dynamically (Fixes Vercel/Render Cross-Origin Issues)
 app.add_middleware(
     CORSMiddleware,
@@ -38,29 +42,71 @@ app.add_middleware(
     expose_headers=["*"]
 )
 
+# Global Exception Handlers to guarantee JSON responses on all Vercel Serverless Function errors
+@app.exception_handler(StarletteHTTPException)
+async def http_exception_handler(request, exc):
+    return JSONResponse(
+        status_code=exc.status_code,
+        content={
+            "status": "error",
+            "detail": exc.detail,
+            "message": str(exc.detail)
+        }
+    )
+
+@app.exception_handler(RequestValidationError)
+async def validation_exception_handler(request, exc):
+    return JSONResponse(
+        status_code=422,
+        content={
+            "status": "error",
+            "detail": exc.errors(),
+            "message": "Validation Error"
+        }
+    )
+
+@app.exception_handler(Exception)
+async def global_exception_handler(request, exc):
+    logger.error(f"[SERVERLESS ERROR] {request.method} {request.url.path}: {exc}", exc_info=True)
+    return JSONResponse(
+        status_code=500,
+        content={
+            "status": "error",
+            "detail": str(exc),
+            "message": "A server error occurred during request execution."
+        }
+    )
+
 @app.options("/{full_path:path}")
 async def preflight_options_handler(full_path: str):
     return {}
 
-# Startup Event: Import and execute database health check on startup
+# Startup Event: Safely execute non-blocking database health check & background index setup
 @app.on_event("startup")
 async def startup_db_event():
     logger.info("[STARTUP] Initializing Project Chakravyuh Backend Services...")
-    logger.info("[STARTUP] Checking MongoDB Atlas cluster connectivity...")
-    
-    is_connected, message = await verify_db_connection(max_retries=1)
-    logger.info(f"[STARTUP] MongoDB Atlas Connection Status: {message}")
+    try:
+        is_connected, message = await verify_db_connection(max_retries=1)
+        logger.info(f"[STARTUP] MongoDB Atlas Connection Status: {message}")
+    except Exception as e:
+        logger.warning(f"[STARTUP NOTICE] Connection check non-fatal exception: {e}")
 
-    # Build background MongoDB Atlas indexes on admin_id for <10ms queries
-    import asyncio
-    asyncio.create_task(ensure_mongodb_indexes())
+    try:
+        import asyncio
+        asyncio.create_task(ensure_mongodb_indexes())
+    except Exception as e:
+        logger.warning(f"[STARTUP NOTICE] Index creation non-fatal exception: {e}")
 
-    # Run Database Health Check report
-    health_status = await check_database_health()
-    logger.info(f"[STARTUP] Database Health Report: {health_status}")
+    try:
+        health_status = await check_database_health()
+        logger.info(f"[STARTUP] Database Health Report: {health_status}")
+    except Exception as e:
+        logger.warning(f"[STARTUP NOTICE] Health check non-fatal exception: {e}")
 
-    # Verify and seed initial database state
-    await seed_all_databases()
+    try:
+        await seed_all_databases()
+    except Exception as e:
+        logger.warning(f"[STARTUP NOTICE] Database seed non-fatal exception: {e}")
 
 # Register all 5 dedicated router modules with proper API prefixes
 app.include_router(attendance_router, prefix="/api/attendance", tags=["Attendance Module"])

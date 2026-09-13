@@ -1,5 +1,5 @@
 import asyncio
-from fastapi import APIRouter, HTTPException, Body, Depends
+from fastapi import APIRouter, HTTPException, Body, Depends, Header
 from pydantic import BaseModel, Field
 from typing import List, Dict, Any, Optional
 from datetime import datetime, timezone, timedelta
@@ -148,7 +148,6 @@ class AttendanceMarkRequest(BaseModel):
     photoUrl: Optional[str] = None
 
 # --- 1. SYSTEM SUMMARY DASHBOARD ---
-from fastapi import Header
 
 @router.get("/modules/summary")
 async def get_system_summary(authorization: Optional[str] = Header(None)):

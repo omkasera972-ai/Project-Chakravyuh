@@ -2,12 +2,23 @@ import sys
 import os
 
 # Set sys.path for Vercel Serverless Function Execution Environment
-sys_path_backend = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "backend"))
-sys_path_root = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
+current_dir = os.path.dirname(os.path.abspath(__file__))
+parent_dir = os.path.dirname(current_dir)
+backend_dir = os.path.join(parent_dir, "backend")
 
-if sys_path_backend not in sys.path:
-    sys.path.insert(0, sys_path_backend)
-if sys_path_root not in sys.path:
-    sys.path.insert(0, sys_path_root)
+for p in [backend_dir, parent_dir, current_dir]:
+    if p not in sys.path:
+        sys.path.insert(0, p)
 
-from backend.main import app
+try:
+    from backend.main import app
+except Exception:
+    try:
+        from main import app  # type: ignore
+    except Exception as e:
+        raise RuntimeError(f"Failed to import FastAPI app for serverless execution: {e}")
+
+__all__ = ["app"]
+
+
+
