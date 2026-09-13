@@ -1,11 +1,11 @@
 {
     "services": {
         "frontend": {
-            "root": "Project-Chakravyuh-Prototype",
+            "root": ".",
             "framework": "vite"
         },
         "backend": {
-            "root": "Project-Chakravyuh-Prototype/backend"
+            "root": "backend"
         }
     },
     "rewrites": [
