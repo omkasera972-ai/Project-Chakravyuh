@@ -249,28 +249,33 @@ async def delete_system_setting(doc_id: str, admin_id: str = Depends(get_authent
 # 8. USER ACCOUNT COLLECTION
 @router.get("/user-account")
 @router.get("/user_account")
+@router.get("/user_account.criminal")
 async def get_user_accounts(admin_id: str = Depends(get_authenticated_admin_id)):
-    return await generic_get_all(db_criminal["user_account"], admin_id=admin_id)
+    return await generic_get_all(db_criminal["user_account.criminal"], admin_id=admin_id)
 
 @router.post("/user-account", status_code=status.HTTP_201_CREATED)
 @router.post("/user_account", status_code=status.HTTP_201_CREATED)
+@router.post("/user_account.criminal", status_code=status.HTTP_201_CREATED)
 async def create_user_account(payload: Dict[str, Any] = Body(...), admin_id: str = Depends(get_authenticated_admin_id)):
-    return await generic_create(db_criminal["user_account"], payload, admin_id=admin_id)
+    return await generic_create(db_criminal["user_account.criminal"], payload, admin_id=admin_id)
 
 @router.get("/user-account/{doc_id}")
 @router.get("/user_account/{doc_id}")
+@router.get("/user_account.criminal/{doc_id}")
 async def get_user_account_by_id(doc_id: str, admin_id: str = Depends(get_authenticated_admin_id)):
-    return await generic_get_one(db_criminal["user_account"], doc_id, admin_id=admin_id)
+    return await generic_get_one(db_criminal["user_account.criminal"], doc_id, admin_id=admin_id)
 
 @router.put("/user-account/{doc_id}")
 @router.put("/user_account/{doc_id}")
+@router.put("/user_account.criminal/{doc_id}")
 async def update_user_account(doc_id: str, payload: Dict[str, Any] = Body(...), admin_id: str = Depends(get_authenticated_admin_id)):
-    return await generic_update(db_criminal["user_account"], doc_id, payload, admin_id=admin_id)
+    return await generic_update(db_criminal["user_account.criminal"], doc_id, payload, admin_id=admin_id)
 
 @router.delete("/user-account/{doc_id}")
 @router.delete("/user_account/{doc_id}")
+@router.delete("/user_account.criminal/{doc_id}")
 async def delete_user_account(doc_id: str, admin_id: str = Depends(get_authenticated_admin_id)):
-    return await generic_delete(db_criminal["user_account"], doc_id, admin_id=admin_id)
+    return await generic_delete(db_criminal["user_account.criminal"], doc_id, admin_id=admin_id)
 
 
 # 9. WATCHLIST ROUTE ALIAS (Internal Redirect to Official registered_data Collection)

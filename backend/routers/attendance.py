@@ -350,28 +350,43 @@ async def delete_system_setting(doc_id: str, admin_id: str = Depends(get_authent
 # 9. USER ACCOUNTS COLLECTION
 @router.get("/user-accounts")
 @router.get("/user_accounts")
+@router.get("/user-account")
+@router.get("/user_account")
+@router.get("/user_account.attendance")
 async def get_user_accounts(admin_id: str = Depends(get_authenticated_admin_id)):
-    return await generic_get_all(db_attendance["user_accounts"], admin_id=admin_id)
+    return await generic_get_all(db_attendance["user_account.attendance"], admin_id=admin_id)
 
 @router.post("/user-accounts", status_code=status.HTTP_201_CREATED)
 @router.post("/user_accounts", status_code=status.HTTP_201_CREATED)
+@router.post("/user-account", status_code=status.HTTP_201_CREATED)
+@router.post("/user_account", status_code=status.HTTP_201_CREATED)
+@router.post("/user_account.attendance", status_code=status.HTTP_201_CREATED)
 async def create_user_account(payload: Dict[str, Any] = Body(...), admin_id: str = Depends(get_authenticated_admin_id)):
-    return await generic_create(db_attendance["user_accounts"], payload, admin_id=admin_id)
+    return await generic_create(db_attendance["user_account.attendance"], payload, admin_id=admin_id)
 
 @router.get("/user-accounts/{doc_id}")
 @router.get("/user_accounts/{doc_id}")
+@router.get("/user-account/{doc_id}")
+@router.get("/user_account/{doc_id}")
+@router.get("/user_account.attendance/{doc_id}")
 async def get_user_account_by_id(doc_id: str, admin_id: str = Depends(get_authenticated_admin_id)):
-    return await generic_get_one(db_attendance["user_accounts"], doc_id, admin_id=admin_id)
+    return await generic_get_one(db_attendance["user_account.attendance"], doc_id, admin_id=admin_id)
 
 @router.put("/user-accounts/{doc_id}")
 @router.put("/user_accounts/{doc_id}")
+@router.put("/user-account/{doc_id}")
+@router.put("/user_account/{doc_id}")
+@router.put("/user_account.attendance/{doc_id}")
 async def update_user_account(doc_id: str, payload: Dict[str, Any] = Body(...), admin_id: str = Depends(get_authenticated_admin_id)):
-    return await generic_update(db_attendance["user_accounts"], doc_id, payload, admin_id=admin_id)
+    return await generic_update(db_attendance["user_account.attendance"], doc_id, payload, admin_id=admin_id)
 
 @router.delete("/user-accounts/{doc_id}")
 @router.delete("/user_accounts/{doc_id}")
+@router.delete("/user-account/{doc_id}")
+@router.delete("/user_account/{doc_id}")
+@router.delete("/user_account.attendance/{doc_id}")
 async def delete_user_account(doc_id: str, admin_id: str = Depends(get_authenticated_admin_id)):
-    return await generic_delete(db_attendance["user_accounts"], doc_id, admin_id=admin_id)
+    return await generic_delete(db_attendance["user_account.attendance"], doc_id, admin_id=admin_id)
 
 
 # 10. PERSONNEL ROUTE ALIAS (Internal Redirect to Official registered_data Collection)
