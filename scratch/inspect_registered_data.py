@@ -2,7 +2,7 @@ import asyncio
 from motor.motor_asyncio import AsyncIOMotorClient
 
 import os
-MONGO_URI = os.getenv("MONGO_URI") or "mongodb+srv://omkasera972_db_user:mongo_db_userom123@cluster0.xy8twbt.mongodb.net/"
+MONGO_URI = os.getenv("MONGO_URI")
 
 async def inspect():
     client = AsyncIOMotorClient(MONGO_URI)
