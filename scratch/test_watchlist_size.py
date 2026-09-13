@@ -1,10 +1,12 @@
 import sys
 import os
-sys.path.append(os.path.join(os.path.dirname(__file__), '..', 'backend'))
+
+sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
+sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..', 'backend')))
 
 import asyncio
 import time
-from database import db_criminal
+from backend.database import db_criminal
 
 async def test_watchlist_query():
     t0 = time.perf_counter()

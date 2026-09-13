@@ -1,0 +1,23 @@
+{
+    "version": 2,
+    "builds": [
+        {
+            "src": "Project-Chakravyuh-Prototype/backend/main.py",
+            "use": "@vercel/python"
+        },
+        {
+            "src": "Project-Chakravyuh-Prototype/package.json",
+            "use": "@vercel/vite"
+        }
+    ],
+    "routes": [
+        {
+            "src": "/api/(.*)",
+            "dest": "Project-Chakravyuh-Prototype/backend/main.py"
+        },
+        {
+            "src": "/(.*)",
+            "dest": "Project-Chakravyuh-Prototype/index.html"
+        }
+    ]
+}
