@@ -310,6 +310,19 @@ const MODULE_THEMES = {
   }
 };
 
+const extractErrorMessage = (data, defaultMsg) => {
+  if (!data) return defaultMsg;
+  if (typeof data.detail === 'string') return data.detail;
+  if (Array.isArray(data.detail) && data.detail.length > 0) {
+    return data.detail.map(err => err.msg || (typeof err === 'string' ? err : JSON.stringify(err))).join(', ');
+  }
+  if (typeof data.detail === 'object' && data.detail !== null) {
+    return data.detail.msg || JSON.stringify(data.detail);
+  }
+  if (typeof data.message === 'string') return data.message;
+  return defaultMsg;
+};
+
 export const ModuleLogin = () => {
   const { moduleId } = useParams();
   const navigate = useNavigate();
@@ -392,7 +405,7 @@ export const ModuleLogin = () => {
         
         window.location.href = `/portal/${module.id}/dashboard`;
       } else {
-        setErrorMessage(data.detail || data.message || 'Incorrect admin name or password.');
+        setErrorMessage(extractErrorMessage(data, 'Incorrect admin name or password.'));
       }
     } catch (err) {
       console.error('Backend Login API error:', err);
@@ -473,7 +486,7 @@ export const ModuleLogin = () => {
         
         window.location.href = `/portal/${module.id}/dashboard`;
       } else {
-        setErrorMessage(data.detail || data.message || 'Failed to create Admin Account.');
+        setErrorMessage(extractErrorMessage(data, 'Failed to create Admin Account.'));
       }
     } catch (err) {
       console.error('Backend Register API error:', err);
