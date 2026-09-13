@@ -367,13 +367,18 @@ export const ModuleLogin = () => {
         })
       });
 
-      const data = await res.json();
+      let data = {};
+      try {
+        data = await res.json();
+      } catch (jsonErr) {
+        console.warn('Non-JSON response received from server:', jsonErr);
+      }
 
       if (res.ok && data.status === 'success') {
         const userObj = {
-          name: data.user.username,
-          username: data.user.username,
-          admin_id: data.user.admin_id,
+          name: data.user?.username || cleanUsername,
+          username: data.user?.username || cleanUsername,
+          admin_id: data.user?.admin_id,
           role: 'admin',
           moduleId: module.id
         };
@@ -443,13 +448,18 @@ export const ModuleLogin = () => {
         })
       });
 
-      const data = await res.json();
+      let data = {};
+      try {
+        data = await res.json();
+      } catch (jsonErr) {
+        console.warn('Non-JSON response received from server:', jsonErr);
+      }
 
       if (res.ok && data.status === 'success') {
         const userObj = {
-          name: data.user.username,
-          username: data.user.username,
-          admin_id: data.user.admin_id,
+          name: data.user?.username || cleanUsername,
+          username: data.user?.username || cleanUsername,
+          admin_id: data.user?.admin_id,
           role: 'admin',
           moduleId: module.id
         };
