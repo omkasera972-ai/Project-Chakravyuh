@@ -1,0 +1,11 @@
+[
+  {
+    "id": "MC-201",
+    "name": "Aarav Kumar",
+    "age": 8,
+    "gender": "Male",
+    "lastSeenLocation": "Central Railway Station",
+    "caseStatus": "Active Search",
+    "photoUrl": "https://images.unsplash.com/photo-1543332164-6e82f355badc?w=400&auto=format&fit=crop&q=80"
+  }
+]

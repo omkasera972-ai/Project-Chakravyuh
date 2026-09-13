@@ -1,0 +1,29 @@
+[
+  {
+    "_id": "6aa31077e8bdf84746cff034",
+    "plate_number": "DL01AB1234",
+    "alert_type": "Blacklisted Vehicle Intercept",
+    "timestamp": "2026-09-11T01:45:00Z",
+    "admin_id": "ADM-CRIM-1789132093"
+  },
+  {
+    "_id": "6aa31089ede99b9df24e9c56",
+    "plate_number": "DL01AB1234",
+    "alert_type": "Blacklisted Vehicle Intercept",
+    "timestamp": "2026-09-11T01:45:00Z",
+    "admin_id": "ADM-CRIM-1789132093"
+  },
+  {
+    "_id": "6aa310a8aa22d3be47192b7e",
+    "plate_number": "DL01AB1234",
+    "alert_type": "Blacklisted Vehicle Intercept",
+    "timestamp": "2026-09-11T01:45:00Z",
+    "admin_id": "ADM-CRIM-1789132093"
+  },
+  {
+    "_id": "6aa597022989f6cf5de4648f",
+    "plate_number": "DL01AB1234",
+    "alert_type": "Blacklisted Vehicle Intercept",
+    "timestamp": "2026-09-11T01:45:00Z"
+  }
+]

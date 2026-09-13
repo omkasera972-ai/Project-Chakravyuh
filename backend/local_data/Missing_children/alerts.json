@@ -1,0 +1,66 @@
+[
+  {
+    "_id": "6aa31089ede99b9df24e9c59",
+    "case_id": "CHILD_001",
+    "alert": "Positive Facial Match Detected",
+    "admin_id": "ADM-CRIM-1789132093"
+  },
+  {
+    "_id": "6aa310a9aa22d3be47192b81",
+    "case_id": "CHILD_001",
+    "alert": "Positive Facial Match Detected",
+    "admin_id": "ADM-CRIM-1789132093"
+  },
+  {
+    "_id": "6aa31ac7667d22953e417546",
+    "module": "missing-child",
+    "type": "Missing Person Sighting",
+    "title": "FOUND PERSON ALERT: Test Missing Privacy B (MC-TEST-PRIV-888)",
+    "location": "Central Market",
+    "camera": "CAM-LIVE-WEBCAM-01",
+    "priority": "High",
+    "description": "MISSING PERSON MATCH: Test Missing Privacy B located with 98.2% precision.",
+    "created_at": "11 Sep 2026, 02:31:59 AM IST",
+    "updated_at": "11 Sep 2026, 02:31:59 AM IST",
+    "timestamp": "2026-09-10T21:01:59Z",
+    "admin_id": "ADM-CRIM-1789132093"
+  },
+  {
+    "_id": "6aa31adb667d22953e41754b",
+    "module": "missing-child",
+    "type": "Missing Person Sighting",
+    "title": "FOUND PERSON ALERT: Test Missing Privacy B (MC-TEST-PRIV-888)",
+    "location": "Central Market",
+    "camera": "CAM-LIVE-WEBCAM-01",
+    "priority": "High",
+    "description": "MISSING PERSON MATCH: Test Missing Privacy B located with 98.2% precision.",
+    "created_at": "11 Sep 2026, 02:32:19 AM IST",
+    "updated_at": "11 Sep 2026, 02:32:19 AM IST",
+    "timestamp": "2026-09-10T21:02:19Z",
+    "admin_id": "ADM-CRIM-1789132093"
+  },
+  {
+    "_id": "6aa31cb4667d22953e41754f",
+    "id": "ALT-726",
+    "module": "missing-child",
+    "type": "Missing Person Sighting",
+    "title": "FOUND PERSON ALERT: keshav vi (MC-2026-580)",
+    "location": "dq",
+    "camera": "CAM-LIVE-WEBCAM-01",
+    "priority": "High",
+    "timeAgo": "Just now",
+    "description": "POSSIBLE MISSING PERSON MATCH: keshav vi located at dq via CCTV Camera with 65.0% precision.",
+    "status": "Active",
+    "icon": "AlertTriangle",
+    "badgeColor": "border-teal-500/40 text-teal-400",
+    "created_at": "11 Sep 2026, 02:40:12 AM IST",
+    "updated_at": "11 Sep 2026, 02:40:12 AM IST",
+    "timestamp": "2026-09-10T21:10:12Z",
+    "admin_id": "ADM-CRIM-1789132093"
+  },
+  {
+    "_id": "6aa597022989f6cf5de46492",
+    "case_id": "CHILD_001",
+    "alert": "Positive Facial Match Detected"
+  }
+]

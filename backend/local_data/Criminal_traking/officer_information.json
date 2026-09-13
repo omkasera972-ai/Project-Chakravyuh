@@ -1,0 +1,56 @@
+[
+  {
+    "_id": "6aa43df2574d6a949af2b985",
+    "officer_id": "OFFICER-NEMAWAR-01",
+    "officer_name": "Officer Om Kasera",
+    "rank": "Station Incharge",
+    "police_station_name": "Nemawar Police Station",
+    "police_station_location": {
+      "address": "Nemawar, Dewas District, MP",
+      "latitude": 22.4632,
+      "longitude": 76.9381,
+      "map_link": "https://maps.google.com/?q=22.4632,76.9381"
+    },
+    "officer_email": "omkasera972@gmail.com",
+    "created_at": "2026-09-11T23:13:00Z",
+    "updated_at": "11 Sep 2026, 11:14:18 PM IST",
+    "timestamp": "2026-09-11T17:44:18Z",
+    "admin_id": "ADM-CRIM-1789132093"
+  },
+  {
+    "_id": "6aa44d0d1bbf9ecb090a589c",
+    "officer_id": "officer003",
+    "officer_name": "RK Gupta",
+    "rank": "SOP",
+    "police_station_name": "Nemawar police station",
+    "police_station_location": {
+      "address": "NH47, Nemawar, Khategaon Tahsil, Dewas, Madhya Pradesh, India",
+      "latitude": 22.505718021033402,
+      "longitude": 76.97879791259766,
+      "map_link": "https://maps.google.com/?q=22.505718021033402,76.97879791259766"
+    },
+    "officer_email": "omtamrakar84@gmail.com",
+    "created_at": "2026-09-11T18:48:45.398Z",
+    "updated_at": "12 Sep 2026, 12:18:45 AM IST",
+    "timestamp": "2026-09-11T18:48:45Z",
+    "admin_id": "ADM-CRIM-1789132093"
+  },
+  {
+    "_id": "6aa5b9bee3aa3aad2a729372",
+    "officer_id": "101",
+    "officer_name": "Gourav",
+    "rank": "IAS",
+    "police_station_name": "Satwas",
+    "police_station_location": {
+      "address": "Satwas, Satwas Tahsil, Dewas, Madhya Pradesh, 455459, India",
+      "latitude": 22.538581450912567,
+      "longitude": 76.68307900428773,
+      "map_link": "https://maps.google.com/?q=22.538581450912567,76.68307900428773"
+    },
+    "officer_email": "gouravsoner0217@gmail.com",
+    "created_at": "2026-09-12T20:44:46.701Z",
+    "admin_id": "ADM-CRIM-1789237723258-196ef4",
+    "updated_at": "13 Sep 2026, 02:14:46 AM IST",
+    "timestamp": "2026-09-12T20:44:46Z"
+  }
+]

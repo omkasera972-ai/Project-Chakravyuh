@@ -22,6 +22,14 @@ from pymongo.errors import (
     OperationFailure
 )
 
+# Configure dnspython to use public DNS servers (8.8.8.8, 1.1.1.1) for reliable Atlas SRV resolution
+try:
+    import dns.resolver
+    dns.resolver.default_resolver = dns.resolver.Resolver(configure=False)
+    dns.resolver.default_resolver.nameservers = ['8.8.8.8', '1.1.1.1', '8.8.4.4']
+except Exception:
+    pass
+
 # Load environment variables (.env in backend directory or current working directory)
 env_path = os.path.join(os.path.dirname(__file__), ".env")
 load_dotenv(dotenv_path=env_path)
@@ -84,10 +92,23 @@ class LocalCollection:
     def _matches(self, doc: Dict[str, Any], query: Dict[str, Any]) -> bool:
         if not query:
             return True
+        if "$or" in query:
+            sub_queries = query["$or"]
+            if not any(self._matches(doc, q) for q in sub_queries):
+                return False
         for k, v in query.items():
+            if k == "$or":
+                continue
             if isinstance(v, dict):
                 if "$in" in v and doc.get(k) not in v["$in"]:
                     return False
+                if "$regex" in v:
+                    import re
+                    opts = v.get("$options", "")
+                    flags = re.IGNORECASE if "i" in opts else 0
+                    val = str(doc.get(k, "") or "")
+                    if not re.search(v["$regex"], val, flags):
+                        return False
             elif doc.get(k) != v:
                 return False
         return True
@@ -162,33 +183,98 @@ class SmartProxyCollection:
         self.local_coll = LocalCollection(db_name, coll_name)
 
     def _get_coll(self):
+        global use_local
         if use_local or client is None:
             return self.local_coll
         return client[self.db_name][self.coll_name]
 
     async def count_documents(self, filter_query: Dict[str, Any]) -> int:
-        return await self._get_coll().count_documents(filter_query)
+        global use_local
+        if use_local or client is None:
+            return await self.local_coll.count_documents(filter_query)
+        try:
+            return await self._get_coll().count_documents(filter_query)
+        except Exception as e:
+            logger.warning(f"[DB FALLBACK] Atlas count_documents failed ({e}), switching to local storage.")
+            use_local = True
+            return await self.local_coll.count_documents(filter_query)
 
     def find(self, filter_query: Dict[str, Any] = None):
-        return self._get_coll().find(filter_query)
+        global use_local
+        if use_local or client is None:
+            return self.local_coll.find(filter_query)
+        try:
+            return self._get_coll().find(filter_query)
+        except Exception as e:
+            logger.warning(f"[DB FALLBACK] Atlas find failed ({e}), switching to local storage.")
+            use_local = True
+            return self.local_coll.find(filter_query)
 
     async def find_one(self, filter_query: Dict[str, Any]):
-        return await self._get_coll().find_one(filter_query)
+        global use_local
+        if use_local or client is None:
+            return await self.local_coll.find_one(filter_query)
+        try:
+            return await self._get_coll().find_one(filter_query)
+        except Exception as e:
+            logger.warning(f"[DB FALLBACK] Atlas find_one failed ({e}), switching to local storage.")
+            use_local = True
+            return await self.local_coll.find_one(filter_query)
 
     async def insert_one(self, document: Dict[str, Any]):
-        return await self._get_coll().insert_one(document)
+        global use_local
+        if use_local or client is None:
+            return await self.local_coll.insert_one(document)
+        try:
+            return await self._get_coll().insert_one(document)
+        except Exception as e:
+            logger.warning(f"[DB FALLBACK] Atlas insert_one failed ({e}), switching to local storage.")
+            use_local = True
+            return await self.local_coll.insert_one(document)
 
     async def insert_many(self, documents: List[Dict[str, Any]]):
-        return await self._get_coll().insert_many(documents)
+        global use_local
+        if use_local or client is None:
+            return await self.local_coll.insert_many(documents)
+        try:
+            return await self._get_coll().insert_many(documents)
+        except Exception as e:
+            logger.warning(f"[DB FALLBACK] Atlas insert_many failed ({e}), switching to local storage.")
+            use_local = True
+            return await self.local_coll.insert_many(documents)
 
     async def update_one(self, filter_query: Dict[str, Any], update_cmd: Dict[str, Any], upsert: bool = False):
-        return await self._get_coll().update_one(filter_query, update_cmd, upsert=upsert)
+        global use_local
+        if use_local or client is None:
+            return await self.local_coll.update_one(filter_query, update_cmd, upsert=upsert)
+        try:
+            return await self._get_coll().update_one(filter_query, update_cmd, upsert=upsert)
+        except Exception as e:
+            logger.warning(f"[DB FALLBACK] Atlas update_one failed ({e}), switching to local storage.")
+            use_local = True
+            return await self.local_coll.update_one(filter_query, update_cmd, upsert=upsert)
 
     async def delete_one(self, filter_query: Dict[str, Any]):
-        return await self._get_coll().delete_one(filter_query)
+        global use_local
+        if use_local or client is None:
+            return await self.local_coll.delete_one(filter_query)
+        try:
+            return await self._get_coll().delete_one(filter_query)
+        except Exception as e:
+            logger.warning(f"[DB FALLBACK] Atlas delete_one failed ({e}), switching to local storage.")
+            use_local = True
+            return await self.local_coll.delete_one(filter_query)
 
     async def delete_many(self, filter_query: Dict[str, Any]):
-        return await self._get_coll().delete_many(filter_query)
+        global use_local
+        if use_local or client is None:
+            return await self.local_coll.delete_many(filter_query)
+        try:
+            return await self._get_coll().delete_many(filter_query)
+        except Exception as e:
+            logger.warning(f"[DB FALLBACK] Atlas delete_many failed ({e}), switching to local storage.")
+            use_local = True
+            return await self.local_coll.delete_many(filter_query)
 
 class SmartProxyDatabase:
     def __init__(self, db_name: str):
@@ -208,9 +294,9 @@ try:
     logger.info("Connecting to MongoDB Atlas Cluster with Motor Async Client...")
     client = AsyncIOMotorClient(
         MONGO_URI,
-        serverSelectionTimeoutMS=5000,
-        connectTimeoutMS=5000,
-        socketTimeoutMS=5000,
+        serverSelectionTimeoutMS=2000,
+        connectTimeoutMS=2000,
+        socketTimeoutMS=2000,
         tls=True,
         tlsAllowInvalidCertificates=True,
         tlsCAFile=certifi.where() if certifi else None,
@@ -228,24 +314,17 @@ except Exception as e:
     use_local = True
 
 # ---------------------------------------------------------
-# Export 5 Distinct Databases (as requested)
+# Export 5 Distinct Databases (Smart Proxy Enabled for Atlas + Local Fallback)
 # ---------------------------------------------------------
-if client is not None:
-    db_attendance = client['Attendence']
-    db_criminal = client['Criminal_traking']
-    db_anpr = client['ANPR_vehicle_system']
-    db_missing = client['Missing_children']
-    db_defence = client['Defence_tactical_system']
-else:
-    db_attendance = SmartProxyDatabase('Attendence')
-    db_criminal = SmartProxyDatabase('Criminal_traking')
-    db_anpr = SmartProxyDatabase('ANPR_vehicle_system')
-    db_missing = SmartProxyDatabase('Missing_children')
-    db_defence = SmartProxyDatabase('Defence_tactical_system')
+db_attendance = SmartProxyDatabase('Attendence')
+db_criminal = SmartProxyDatabase('Criminal_traking')
+db_anpr = SmartProxyDatabase('ANPR_vehicle_system')
+db_missing = SmartProxyDatabase('Missing_children')
+db_defence = SmartProxyDatabase('Defence_tactical_system')
 
 # Auxiliary database exports for application system compatibility
-db_contacts = client['chakravyuh_contacts'] if client is not None else SmartProxyDatabase('chakravyuh_contacts')
-db_users = client['chakravyuh_users'] if client is not None else SmartProxyDatabase('chakravyuh_users')
+db_contacts = SmartProxyDatabase('chakravyuh_contacts')
+db_users = SmartProxyDatabase('chakravyuh_users')
 
 async def ensure_mongodb_indexes():
     """
@@ -355,15 +434,17 @@ async def verify_db_connection(max_retries: int = 3, retry_delay: float = 1.0) -
             use_local = False
             logger.info("✅ [SUCCESS] Successfully connected to MongoDB Atlas Cluster!")
             return True, "Connected to MongoDB Atlas Cloud Cluster"
-        except (ConnectionFailure, ServerSelectionTimeoutError) as err:
-            logger.warning(f"[ATTEMPT {attempt} FAILED] Ping failed due to network/timeout: {err}")
+        except (ConnectionFailure, ServerSelectionTimeoutError, ConfigurationError) as err:
+            logger.warning(f"[ATTEMPT {attempt} FAILED] Ping failed due to network/timeout/DNS: {err}")
             if attempt < max_retries:
                 await asyncio.sleep(retry_delay)
         except PyMongoError as err:
             logger.error(f"PyMongo Database Error: {err}")
+            use_local = True
             return False, f"Database Error: {str(err)}"
         except Exception as err:
             logger.error(f"Unexpected Database Error: {err}")
+            use_local = True
             return False, f"Unexpected Error: {str(err)}"
 
     logger.warning("MongoDB Atlas cluster unreachable after retries. Falling back to local storage proxy.")

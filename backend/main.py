@@ -48,7 +48,7 @@ async def startup_db_event():
     logger.info("[STARTUP] Initializing Project Chakravyuh Backend Services...")
     logger.info("[STARTUP] Checking MongoDB Atlas cluster connectivity...")
     
-    is_connected, message = await verify_db_connection(max_retries=3)
+    is_connected, message = await verify_db_connection(max_retries=1)
     logger.info(f"[STARTUP] MongoDB Atlas Connection Status: {message}")
 
     # Build background MongoDB Atlas indexes on admin_id for <10ms queries
@@ -69,10 +69,10 @@ app.include_router(anpr_router, prefix="/api/anpr", tags=["ANPR System Module"])
 app.include_router(missing_children_router, prefix="/api/missing-children", tags=["Missing Children Module"])
 app.include_router(defence_router, prefix="/api/defence", tags=["Defence Tracker Module"])
 
-# Register auxiliary system routers with API prefixes to prevent endpoint blocking
-app.include_router(auth_router, prefix="/api/auth", tags=["Auth Module"])
-app.include_router(ai_engine_router, prefix="/api/ai", tags=["AI Engine"])
-app.include_router(modules_router, prefix="/api/modules", tags=["System Modules"])
+# Register auxiliary system routers (their prefixes are already defined in the router files)
+app.include_router(auth_router)
+app.include_router(ai_engine_router)
+app.include_router(modules_router)
 
 @app.get("/")
 async def root():

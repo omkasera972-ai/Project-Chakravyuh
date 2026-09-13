@@ -1,0 +1,64 @@
+[
+  {
+    "_id": "6aa31071bcc4cbab2c1498ab",
+    "plate_number": "DL01AB1234",
+    "category": "Flagged",
+    "owner": "Test Owner",
+    "admin_id": "ADM-CRIM-1789132093"
+  },
+  {
+    "_id": "6aa595200b8f3a98e0d1d2c4",
+    "id": "VEH-TEST-11557",
+    "plateNumber": "MP09ZZ1155",
+    "owner": "Owner 11557",
+    "type": "SUV",
+    "admin_id": "ADM-ANPR-ADMIN",
+    "created_at": "12 Sep 2026, 11:38:32 PM IST",
+    "updated_at": "12 Sep 2026, 11:38:32 PM IST",
+    "timestamp": "2026-09-12T18:08:32Z"
+  },
+  {
+    "_id": "6aa595820b8f3a98e0d1d2cb",
+    "id": "VEH-TEST-9643",
+    "plateNumber": "MP09ZZ9643",
+    "owner": "Owner 9643",
+    "type": "SUV",
+    "admin_id": "ADM-ANPR-ADMIN",
+    "created_at": "12 Sep 2026, 11:40:10 PM IST",
+    "updated_at": "12 Sep 2026, 11:40:10 PM IST",
+    "timestamp": "2026-09-12T18:10:10Z"
+  },
+  {
+    "_id": "6aa596509fb178c7dcdec063",
+    "admin_id": "ADM-ANPR-2577B0",
+    "created_at": "12 Sep 2026, 11:43:36 PM IST",
+    "id": "VEH-TEST-15797",
+    "owner": "Owner 15797",
+    "plateNumber": "MP09ZZ1579",
+    "timestamp": "2026-09-12T18:13:36Z",
+    "type": "SUV",
+    "updated_at": "12 Sep 2026, 11:43:36 PM IST"
+  },
+  {
+    "_id": "6aa5982d81b8e585966282a4",
+    "id": "VEH-TEST-92962",
+    "plateNumber": "MP09ZZ9296",
+    "owner": "Owner 92962",
+    "type": "SUV",
+    "admin_id": "ADM-ANPR-ADMIN",
+    "created_at": "12 Sep 2026, 11:51:33 PM IST",
+    "updated_at": "12 Sep 2026, 11:51:33 PM IST",
+    "timestamp": "2026-09-12T18:21:33Z"
+  },
+  {
+    "_id": "6aa5a022171c4bec2193cec2",
+    "id": "VEH-PERSIST-1789239327",
+    "plateNumber": "MH12AB9327",
+    "type": "SUV",
+    "owner": "Tactical Unit",
+    "admin_id": "ADM-CRIM-ADMIN",
+    "created_at": "13 Sep 2026, 12:25:30 AM IST",
+    "updated_at": "13 Sep 2026, 12:25:30 AM IST",
+    "timestamp": "2026-09-12T18:55:30Z"
+  }
+]

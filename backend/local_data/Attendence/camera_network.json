@@ -1,0 +1,18 @@
+[
+  {
+    "_id": "6aa31071bcc4cbab2c1498a5",
+    "cam_id": "CAM_01",
+    "name": "Gate Camera",
+    "status": "Active",
+    "admin_id": "ADM-CRIM-1789132093"
+  },
+  {
+    "_id": "6aa31f41667d22953e417553",
+    "id": "CAM-02",
+    "status": "Online",
+    "updated_at": "11 Sep 2026, 02:51:05 AM IST",
+    "created_at": "11 Sep 2026, 02:51:05 AM IST",
+    "timestamp": "2026-09-10T21:21:05Z",
+    "admin_id": "ADM-CRIM-1789132093"
+  }
+]

@@ -1,0 +1,25 @@
+[
+  {
+    "_id": "6aa31071bcc4cbab2c1498a8",
+    "key": "criminal_config",
+    "auto_alert": true,
+    "admin_id": "ADM-CRIM-1789132093"
+  },
+  {
+    "_id": "6aa5bb1d0717dc0f0a0e1cca",
+    "id": "SETTINGS-CRIMINAL-TRACKING",
+    "module": "criminal-tracking",
+    "settings": {
+      "autoAlertSound": true,
+      "darkHighContrast": true,
+      "neuralAutoScan": true,
+      "anprLiveIntercepts": true,
+      "cctvStreamFps60": true,
+      "lowBandwidthMode": false,
+      "retentionDays": 90
+    },
+    "updated_at": "13 Sep 2026, 02:20:37 AM IST",
+    "created_at": "13 Sep 2026, 02:20:37 AM IST",
+    "timestamp": "2026-09-12T20:50:37Z"
+  }
+]

@@ -1,0 +1,20 @@
+[
+  {
+    "id": "VEH-101",
+    "plateNumber": "MP 09 AB 1234",
+    "type": "Black SUV - Fortuner",
+    "owner": "Rohan Sharma",
+    "status": "Clear",
+    "lastSeen": "CAM-02 Gate",
+    "timestamp": "Today, 10:14 AM"
+  },
+  {
+    "id": "VEH-102",
+    "plateNumber": "DL 01 CX 9988",
+    "type": "White Sedan - City",
+    "owner": "Vikram Singh",
+    "status": "Blacklisted",
+    "lastSeen": "CAM-06 Parking",
+    "timestamp": "Today, 09:30 AM"
+  }
+]

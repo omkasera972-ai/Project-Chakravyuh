@@ -1,0 +1,64 @@
+[
+  {
+    "_id": "6aa31084bcc4cbab2c1498b4",
+    "unit_id": "UNIT_99",
+    "status": "Deployed",
+    "unit_name": "Alpha Recon",
+    "admin_id": "ADM-CRIM-1789132093"
+  },
+  {
+    "_id": "6aa595210b8f3a98e0d1d2c6",
+    "id": "DEF-TEST-11557",
+    "name": "Tactical Gear 11557",
+    "item": "Radar Unit 11557",
+    "quantity": 12,
+    "admin_id": "ADM-DEFE-ADMIN",
+    "created_at": "12 Sep 2026, 11:38:33 PM IST",
+    "updated_at": "12 Sep 2026, 11:38:33 PM IST",
+    "timestamp": "2026-09-12T18:08:33Z"
+  },
+  {
+    "_id": "6aa595830b8f3a98e0d1d2cd",
+    "id": "DEF-TEST-9643",
+    "name": "Tactical Gear 9643",
+    "item": "Radar Unit 9643",
+    "quantity": 12,
+    "admin_id": "ADM-DEFE-ADMIN",
+    "created_at": "12 Sep 2026, 11:40:11 PM IST",
+    "updated_at": "12 Sep 2026, 11:40:11 PM IST",
+    "timestamp": "2026-09-12T18:10:11Z"
+  },
+  {
+    "_id": "6aa596509fb178c7dcdec067",
+    "admin_id": "ADM-DEFE-E18BD9",
+    "created_at": "12 Sep 2026, 11:43:36 PM IST",
+    "id": "DEF-TEST-15797",
+    "item": "Radar Unit 15797",
+    "name": "Tactical Gear 15797",
+    "quantity": 12,
+    "timestamp": "2026-09-12T18:13:36Z",
+    "updated_at": "12 Sep 2026, 11:43:36 PM IST"
+  },
+  {
+    "_id": "6aa5982e81b8e585966282a6",
+    "id": "DEF-TEST-92962",
+    "name": "Tactical Gear 92962",
+    "item": "Radar Unit 92962",
+    "quantity": 12,
+    "admin_id": "ADM-DEFE-ADMIN",
+    "created_at": "12 Sep 2026, 11:51:34 PM IST",
+    "updated_at": "12 Sep 2026, 11:51:34 PM IST",
+    "timestamp": "2026-09-12T18:21:34Z"
+  },
+  {
+    "_id": "6aa5a022171c4bec2193cec4",
+    "id": "DEF-PERSIST-1789239327",
+    "itemName": "Persistence Drone 1789239327",
+    "category": "Surveillance",
+    "quantity": 5,
+    "admin_id": "ADM-CRIM-ADMIN",
+    "created_at": "13 Sep 2026, 12:25:30 AM IST",
+    "updated_at": "13 Sep 2026, 12:25:30 AM IST",
+    "timestamp": "2026-09-12T18:55:30Z"
+  }
+]

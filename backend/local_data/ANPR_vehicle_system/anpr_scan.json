@@ -1,0 +1,59 @@
+[
+  {
+    "_id": "6aa30a90fd1f412a718ca95e",
+    "plate": "MP09E2E99",
+    "confidence": "98.7%",
+    "status": "Blacklisted",
+    "location": "Expressway Toll Lane 1",
+    "created_at": "11 Sep 2026, 01:22:48 AM IST",
+    "updated_at": "11 Sep 2026, 01:22:48 AM IST",
+    "timestamp": "2026-09-10T19:52:48Z",
+    "admin_id": "ADM-CRIM-1789132093"
+  },
+  {
+    "_id": "6aa30b9afd1f412a718ca968",
+    "plate": "MP09E2E99",
+    "confidence": "98.7%",
+    "status": "Blacklisted",
+    "location": "Expressway Toll Lane 1",
+    "created_at": "11 Sep 2026, 01:27:14 AM IST",
+    "updated_at": "11 Sep 2026, 01:27:14 AM IST",
+    "timestamp": "2026-09-10T19:57:14Z",
+    "admin_id": "ADM-CRIM-1789132093"
+  },
+  {
+    "_id": "6aa31077e8bdf84746cff033",
+    "plate_number": "DL01AB1234",
+    "camera": "ANPR_CAM_1",
+    "confidence": 0.97,
+    "exact_time": "01:45:00",
+    "date": "2026-09-11",
+    "admin_id": "ADM-CRIM-1789132093"
+  },
+  {
+    "_id": "6aa31089ede99b9df24e9c55",
+    "plate_number": "DL01AB1234",
+    "camera": "ANPR_CAM_1",
+    "confidence": 0.97,
+    "exact_time": "01:45:00",
+    "date": "2026-09-11",
+    "admin_id": "ADM-CRIM-1789132093"
+  },
+  {
+    "_id": "6aa310a8aa22d3be47192b7d",
+    "plate_number": "DL01AB1234",
+    "camera": "ANPR_CAM_1",
+    "confidence": 0.97,
+    "exact_time": "01:45:00",
+    "date": "2026-09-11",
+    "admin_id": "ADM-CRIM-1789132093"
+  },
+  {
+    "_id": "6aa597022989f6cf5de4648e",
+    "plate_number": "DL01AB1234",
+    "camera": "ANPR_CAM_1",
+    "confidence": 0.97,
+    "exact_time": "01:45:00",
+    "date": "2026-09-11"
+  }
+]

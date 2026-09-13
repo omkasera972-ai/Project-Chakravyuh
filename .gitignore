@@ -1,18 +1,30 @@
+# Dependencies & Build Output
 node_modules/
 dist/
+build/
 
+# Environment Files & Secrets
 .env
 .env.*
 !.env.example
 
-backend/local_data/
-
+# Python Cache & Virtual Environments
 __pycache__/
 *.pyc
+*.pyo
 .venv/
 venv/
+env/
+*.egg-info/
 
+# IDE & Editor Settings
 .vscode/
 .idea/
+*.swp
+*.swo
 
+# System Files & Log Files
+.DS_Store
+Thumbs.db
 *.log
+scratch/*.log

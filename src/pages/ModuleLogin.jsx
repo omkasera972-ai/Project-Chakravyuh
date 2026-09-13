@@ -352,6 +352,9 @@ export const ModuleLogin = () => {
     }
 
     setIsLoading(true);
+    localStorage.removeItem('sda_token');
+    localStorage.removeItem('sda_user');
+    localStorage.removeItem('sda_auth');
 
     try {
       const res = await fetch(`${getApiBaseUrl()}/api/auth/login`, {
@@ -424,6 +427,9 @@ export const ModuleLogin = () => {
     }
 
     setIsLoading(true);
+    localStorage.removeItem('sda_token');
+    localStorage.removeItem('sda_user');
+    localStorage.removeItem('sda_auth');
 
     try {
       const res = await fetch(`${getApiBaseUrl()}/api/auth/register`, {

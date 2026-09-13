@@ -1,0 +1,21 @@
+[
+  {
+    "_id": "6aa31cb4667d22953e417550",
+    "childId": "MC-2026-580",
+    "childName": "keshav vi",
+    "confidence": "65.0",
+    "location": "dq",
+    "created_at": "2026-09-10T21:10:12.746Z",
+    "updated_at": "11 Sep 2026, 02:40:12 AM IST",
+    "timestamp": "2026-09-10T21:10:12Z",
+    "admin_id": "ADM-CRIM-1789132093"
+  },
+  {
+    "_id": "6aa597022989f6cf5de46491",
+    "case_id": "CHILD_001",
+    "name": "Test Child",
+    "location": "Bus Station",
+    "confidence": 0.92,
+    "timestamp": "2026-09-11T01:45:00Z"
+  }
+]

@@ -1,0 +1,142 @@
+[
+  {
+    "_id": "6aa2ffd8faf20208cfb229c3",
+    "timestamp": "2026-09-10T19:07:04.644628",
+    "username": "Officer_Govt_Higher_School",
+    "email": "officer_govt_higher_school@chakravyuh.gov.in",
+    "role": "admin",
+    "moduleId": "attendance",
+    "subCategory": "Govt Higher School",
+    "status": "SUCCESS_ADMIN_LOGIN"
+  },
+  {
+    "_id": "6aa315aa667d22953e417536",
+    "timestamp": "2026-09-10T20:40:10.452409",
+    "username": "Officer_State_Police_HQ",
+    "email": "officer_state_police_hq@chakravyuh.gov.in",
+    "role": "admin",
+    "moduleId": "criminal-tracking",
+    "subCategory": "State Police HQ",
+    "status": "SUCCESS_ADMIN_LOGIN"
+  },
+  {
+    "_id": "6aa31722667d22953e41753d",
+    "timestamp": "2026-09-10T20:46:26.794903",
+    "username": "Officer_State_Traffic_Command",
+    "email": "officer_state_traffic_command@chakravyuh.gov.in",
+    "role": "admin",
+    "moduleId": "anpr",
+    "subCategory": "State Traffic Command",
+    "status": "SUCCESS_ADMIN_LOGIN"
+  },
+  {
+    "_id": "6aa318aa667d22953e41753f",
+    "timestamp": "2026-09-10T20:52:58.178778",
+    "username": "Officer_Anti-Trafficking_Cell",
+    "email": "officer_anti-trafficking_cell@chakravyuh.gov.in",
+    "role": "admin",
+    "moduleId": "missing-child",
+    "subCategory": "Anti-Trafficking Cell",
+    "status": "SUCCESS_ADMIN_LOGIN"
+  },
+  {
+    "_id": "6aa31937667d22953e417540",
+    "timestamp": "2026-09-10T20:55:19.703371",
+    "username": "Officer_State_Police_HQ",
+    "email": "officer_state_police_hq@chakravyuh.gov.in",
+    "role": "admin",
+    "moduleId": "criminal-tracking",
+    "subCategory": "State Police HQ",
+    "status": "SUCCESS_ADMIN_LOGIN"
+  },
+  {
+    "_id": "6aa31a6e667d22953e417541",
+    "timestamp": "2026-09-10T21:00:30.027192",
+    "username": "Officer_Anti-Trafficking_Cell",
+    "email": "officer_anti-trafficking_cell@chakravyuh.gov.in",
+    "role": "admin",
+    "moduleId": "missing-child",
+    "subCategory": "Anti-Trafficking Cell",
+    "status": "SUCCESS_ADMIN_LOGIN"
+  },
+  {
+    "_id": "6aa31c4e667d22953e41754c",
+    "timestamp": "2026-09-10T21:08:30.039667",
+    "username": "Officer_Anti-Trafficking_Cell",
+    "email": "officer_anti-trafficking_cell@chakravyuh.gov.in",
+    "role": "admin",
+    "moduleId": "missing-child",
+    "subCategory": "Anti-Trafficking Cell",
+    "status": "SUCCESS_ADMIN_LOGIN"
+  },
+  {
+    "_id": "6aa31dc4667d22953e417552",
+    "timestamp": "2026-09-10T21:14:44.486177",
+    "username": "Officer_Garrison_Command",
+    "email": "officer_garrison_command@chakravyuh.gov.in",
+    "role": "admin",
+    "moduleId": "defence",
+    "subCategory": "Garrison Command",
+    "status": "SUCCESS_ADMIN_LOGIN"
+  },
+  {
+    "_id": "6aa391621586c1341b345ded",
+    "timestamp": "2026-09-11T05:28:02.385504",
+    "username": "Officer_Govt_Higher_School",
+    "email": "officer_govt_higher_school@chakravyuh.gov.in",
+    "role": "admin",
+    "moduleId": "attendance",
+    "subCategory": "Govt Higher School",
+    "status": "SUCCESS_ADMIN_LOGIN"
+  },
+  {
+    "_id": "6aa392a11586c1341b345dee",
+    "timestamp": "2026-09-11T05:33:21.877509",
+    "username": "Officer_State_Police_HQ",
+    "email": "officer_state_police_hq@chakravyuh.gov.in",
+    "role": "admin",
+    "moduleId": "criminal-tracking",
+    "subCategory": "State Police HQ",
+    "status": "SUCCESS_ADMIN_LOGIN"
+  },
+  {
+    "_id": "6aa393fbe999e644ed89403e",
+    "timestamp": "2026-09-11T05:39:07.572776",
+    "username": "Officer_State_Police_HQ",
+    "email": "officer_state_police_hq@chakravyuh.gov.in",
+    "role": "admin",
+    "moduleId": "criminal-tracking",
+    "subCategory": "State Police HQ",
+    "status": "SUCCESS_ADMIN_LOGIN"
+  },
+  {
+    "_id": "6aa3ae248e1a2cdbf9252614",
+    "timestamp": "2026-09-11T07:30:44.951291",
+    "username": "Officer_State_Police_HQ",
+    "email": "officer_state_police_hq@chakravyuh.gov.in",
+    "role": "admin",
+    "moduleId": "criminal-tracking",
+    "subCategory": "State Police HQ",
+    "status": "SUCCESS_ADMIN_LOGIN"
+  },
+  {
+    "_id": "6aa553acbcc4cbab2c164ba2",
+    "subCategory": "Govt Higher School",
+    "timestamp": "2026-09-10T08:54:41.577474",
+    "username": "Officer_Govt_Higher_School",
+    "status": "SUCCESS_ADMIN_LOGIN",
+    "email": "officer_govt_higher_school@chakravyuh.gov.in",
+    "moduleId": "attendance",
+    "role": "admin"
+  },
+  {
+    "_id": "6aa553acbcc4cbab2c164ba3",
+    "status": "SUCCESS_ADMIN_LOGIN",
+    "email": "officer_state_police_hq@chakravyuh.gov.in",
+    "username": "Officer_State_Police_HQ",
+    "timestamp": "2026-09-10T08:54:50.483523",
+    "subCategory": "State Police HQ",
+    "role": "admin",
+    "moduleId": "criminal-tracking"
+  }
+]

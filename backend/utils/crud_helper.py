@@ -121,7 +121,16 @@ async def generic_get_all(collection, limit: int = 500, query_filter: Optional[D
             return {"status": "success", "count": 0, "data": []}
         filter_q = dict(query_filter) if query_filter is not None else {}
         if admin_id:
-            filter_q["admin_id"] = admin_id
+            if "$or" not in filter_q:
+                filter_q["$or"] = [
+                    {"admin_id": admin_id},
+                    {"admin_id": None},
+                    {"admin_id": "None"},
+                    {"admin_id": ""},
+                    {"admin_id": {"$exists": False}}
+                ]
+            else:
+                filter_q["admin_id"] = admin_id
         cursor = collection.find(filter_q)
         docs = await cursor.to_list(length=limit)
         serialized = serialize_docs(docs)

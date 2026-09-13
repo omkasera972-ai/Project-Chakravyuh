@@ -1,0 +1,16 @@
+[
+  {
+    "id": "ARM-01",
+    "item": "Tactical Body Armor Level IV",
+    "qty": 45,
+    "status": "In Stock",
+    "location": "Depot 2"
+  },
+  {
+    "id": "ARM-02",
+    "item": "Thermal Surveillance Drone X-9",
+    "qty": 8,
+    "status": "Operational",
+    "location": "Command Center"
+  }
+]
