@@ -1,23 +1,27 @@
 {
-    "version": 2,
-    "builds": [
-        {
-            "src": "Project-Chakravyuh-Prototype/backend/main.py",
-            "use": "@vercel/python"
+    "services": {
+        "frontend": {
+            "root": "Project-Chakravyuh-Prototype",
+            "framework": "vite"
         },
-        {
-            "src": "Project-Chakravyuh-Prototype/package.json",
-            "use": "@vercel/vite"
+        "backend": {
+            "root": "Project-Chakravyuh-Prototype/backend"
         }
-    ],
-    "routes": [
+    },
+    "rewrites": [
         {
-            "src": "/api/(.*)",
-            "dest": "Project-Chakravyuh-Prototype/backend/main.py"
+            "source": "/api/(.*)?",
+            "destination": {
+                "type": "service",
+                "service": "backend"
+            }
         },
         {
-            "src": "/(.*)",
-            "dest": "Project-Chakravyuh-Prototype/index.html"
+            "source": "/(.*)",
+            "destination": {
+                "type": "service",
+                "service": "frontend"
+            }
         }
     ]
 }
