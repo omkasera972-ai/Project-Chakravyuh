@@ -154,7 +154,7 @@ class AdminRegisterRequest(BaseModel):
 # --- 5. Endpoints ---
 @router.post("/login")
 async def login_admin(req: AdminLoginRequest, request: Request):
-    """Authenticate Admin against the module's exact private authentication collection with multi-tier fallback."""
+    """Authenticate Admin against the module's exact private authentication collection."""
     username = (req.username or "").strip()
     password = (req.password or "").strip()
     client_ip = request.client.host if request.client else "127.0.0.1"
@@ -186,30 +186,21 @@ async def login_admin(req: AdminLoginRequest, request: Request):
             ]
         })
 
-    # 3. Fallback for any admin login attempt if user document is not pre-registered
     if not user_doc:
-        mod_code = req.moduleId.upper().replace('-', '')[:4]
-        user_doc = {
-            "admin_id": f"ADM-{mod_code}-{int(time.time())}",
-            "username": username,
-            "password_hash": hash_password(password),
-            "password": password,
-            "role": "admin",
-            "moduleId": req.moduleId
-        }
+        record_failed_attempt(rate_key)
+        raise HTTPException(status_code=401, detail="Invalid admin username or password. Account not found.")
 
     stored_pwd = user_doc.get("password_hash") or user_doc.get("password") or user_doc.get("pass") or ""
     
     pw_valid = verify_password(password, stored_pwd)
     if not pw_valid:
-        # Flexible password fallback for admin testing
-        if password in [username, username.lower(), "admin123", "admin", "1234", "123456", "sheru", "pass", "password", stored_pwd]:
-            pw_valid = True
+        record_failed_attempt(rate_key)
+        raise HTTPException(status_code=401, detail="Invalid admin username or password.")
 
     # Clear any rate limits and guarantee login authorization
     clear_failed_attempts(rate_key)
 
-    admin_id = str(user_doc.get("admin_id") or user_doc.get("_id") or f"ADM-{int(time.time())}")
+    admin_id = str(user_doc.get("admin_id") or user_doc.get("_id"))
     matched_username = user_doc.get("username") or username
     token = create_admin_token(admin_id, matched_username, req.moduleId)
 
@@ -220,7 +211,7 @@ async def login_admin(req: AdminLoginRequest, request: Request):
         "user": {
             "admin_id": admin_id,
             "username": matched_username,
-            "role": "admin",
+            "role": user_doc.get("role", "admin"),
             "moduleId": req.moduleId
         }
     }
@@ -243,19 +234,28 @@ async def create_new_admin(req: AdminRegisterRequest):
 
     coll = get_auth_collection(req.moduleId)
 
-    # Check if admin account already exists in this exact module collection
+    # Check if admin account already exists in this exact module collection or global db_users
     existing_user = await coll.find_one({
         "$or": [
             {"username": username},
             {"username": {"$regex": f"^{re.escape(username)}$", "$options": "i"}}
         ]
     })
+    if not existing_user:
+        from database import db_users
+        existing_user = await db_users["users"].find_one({
+            "$or": [
+                {"username": username},
+                {"username": {"$regex": f"^{re.escape(username)}$", "$options": "i"}}
+            ]
+        })
+
     if existing_user:
-        raise HTTPException(status_code=400, detail="Admin account already exists. Please login.")
+        raise HTTPException(status_code=400, detail="Admin account username already exists. Please login with your password.")
 
     import uuid
     mod_code = req.moduleId.upper().replace("-", "")[:4]
-    admin_id = f"ADM-{mod_code}-{int(time.time() * 1000)}-{uuid.uuid4().hex[:6]}"
+    admin_id = f"ADM-{mod_code}-{username.lower()}-{uuid.uuid4().hex[:6]}"
     server_time = get_server_time()
     pwd_hash = hash_password(password)
 
