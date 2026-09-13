@@ -19,11 +19,36 @@ from utils.crud_helper import serialize_doc, get_authenticated_admin_id, generic
 router = APIRouter(prefix="/api", tags=["MongoDB Atlas Datasets"])
 
 @router.get("/initial-data")
-async def get_all_initial_module_data(admin_id: str = Depends(get_authenticated_admin_id)):
+async def get_all_initial_module_data(authorization: Optional[str] = Header(None)):
     """
     Ultra-Fast Single Batch Endpoint: Fetches all 5 module datasets + alerts in parallel
     using asyncio.gather to reduce startup / page-refresh latency from 5000ms down to <100ms.
+    Returns empty arrays for unauthenticated sessions without throwing 401 error.
     """
+    admin_id = None
+    if authorization:
+        try:
+            from routers.auth import verify_admin_token
+            payload = verify_admin_token(authorization)
+            if payload:
+                admin_id = payload.get("admin_id")
+        except Exception:
+            pass
+
+    if not admin_id:
+        return {
+            "status": "success",
+            "admin_id": None,
+            "data": {
+                "personnel": [],
+                "watchlist": [],
+                "vehicles": [],
+                "missingChildren": [],
+                "inventory": [],
+                "alerts": []
+            }
+        }
+
     try:
         personnel_task = generic_get_all(db_attendance["registered_data"], admin_id=admin_id)
         watchlist_task = generic_get_all(db_criminal["registered_data"], admin_id=admin_id)

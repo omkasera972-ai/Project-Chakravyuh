@@ -28,19 +28,19 @@ app = FastAPI(
     version="2.0.0"
 )
 
-# Explicit CORS Middleware Setup (Fixes Vercel Cross-Origin Preflight Issues)
+# Explicit CORS Middleware Setup with regex to match all origins dynamically (Fixes Vercel/Render Cross-Origin Issues)
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=[
-        "https://project-chakravyuh.vercel.app",
-        "http://localhost:5173",
-        "*"
-    ],
+    allow_origin_regex=r"https?://.*",
     allow_credentials=True,
     allow_methods=["GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH"],
     allow_headers=["*"],
     expose_headers=["*"]
 )
+
+@app.options("/{full_path:path}")
+async def preflight_options_handler(full_path: str):
+    return {}
 
 # Startup Event: Import and execute database health check on startup
 @app.on_event("startup")
