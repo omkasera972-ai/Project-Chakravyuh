@@ -1,50 +1,32 @@
-import sys
-import os
-sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', 'backend'))
-sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..'))
-
 import asyncio
-try:
-    from backend.database import (
-        db_attendance,
-        db_criminal,
-        db_anpr,
-        db_missing,
-        db_defence
-    )
-except ImportError:
-    from database import (  # type: ignore
-        db_attendance,
-        db_criminal,
-        db_anpr,
-        db_missing,
-        db_defence
-    )
+import os
+import sys
 
-async def check_all_admin_ids():
-    dbs = {
-        "Attendence": db_attendance,
-        "Criminal_traking": db_criminal,
-        "ANPR_vehicle_system": db_anpr,
-        "Missing_children": db_missing,
-        "Defence_tactical_system": db_defence
-    }
+# Ensure project root directory is in sys.path
+root_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
+if root_dir not in sys.path:
+    sys.path.insert(0, root_dir)
 
-    print("--- CHECKING EXISTING ADMIN_ID VALUES IN MONGODB ATLAS ---")
-    for db_name, db in dbs.items():
-        if db is None:
-            continue
-        print(f"\nDatabase: {db_name}")
-        for coll_name in ["registered_data", "officer_information", "camera_network", "alerts", "reports", "children_detection", "personnel"]:
-            try:
-                coll = db[coll_name]
-                cursor = coll.find({})
-                docs = await cursor.to_list(length=100)
-                if docs:
-                    admin_ids = set(str(d.get("admin_id")) for d in docs)
-                    print(f"  - Collection '{coll_name}': {len(docs)} docs | admin_ids: {admin_ids}")
-            except Exception as e:
-                pass
+from dotenv import load_dotenv
+
+env_path = os.path.join(root_dir, 'backend', '.env')
+if os.path.exists(env_path):
+    load_dotenv(env_path)
+else:
+    load_dotenv()
+
+from backend.database import db_criminal
+
+async def check_admins():
+    print("=== OFFICERS IN MONGODB ATLAS ===")
+    officers = await db_criminal["officer_information"].find({}).to_list(length=100)
+    for off in officers:
+        print(f"Name: {off.get('officer_name') or off.get('name')} | Email: {off.get('officer_email') or off.get('email')} | Station: {off.get('police_station_name')} | admin_id: {off.get('admin_id')}")
+
+    print("\n=== CAMERAS IN MONGODB ATLAS ===")
+    cameras = await db_criminal["camera_network"].find({}).to_list(length=100)
+    for cam in cameras:
+        print(f"Cam ID: {cam.get('camera_id') or cam.get('id')} | Name: {cam.get('camera_name') or cam.get('name')} | admin_id: {cam.get('admin_id')}")
 
 if __name__ == "__main__":
-    asyncio.run(check_all_admin_ids())
+    asyncio.run(check_admins())

@@ -815,10 +815,11 @@ export const CriminalTracking = () => {
                   crime_details: primaryMatch.target.details || primaryMatch.target.crimeType || 'Under Active Watchlist Surveillance',
                   ipc_charges: primaryMatch.target.charges || primaryMatch.target.ipcCharges || 'IPC 302 / 395',
                   age: primaryMatch.target.age || '32',
-                  cam_id: scanTab === 'cctv' ? selectedCctvId : 'CAM-2000',
-                  location: scanTab === 'cctv' ? selectedCctvLocation : 'NH47, Nemawar, Dewas, MP, India',
+                  cam_id: scanTab === 'cctv' ? (selectedCctvId || 'WEB-Cam01') : 'WEB-Cam01',
+                  location: scanTab === 'cctv' ? selectedCctvLocation : 'Sandhalpur, Nemawar Highway, MP, India',
                   lat: userLocation?.lat || 22.504429,
-                  lng: userLocation?.lng || 76.979752
+                  lng: userLocation?.lng || 76.979752,
+                  force: true
                 })
               });
               if (res.ok) {
@@ -1798,27 +1799,38 @@ export const CriminalTracking = () => {
                   {/* Actions Bar: Re-Trigger Dispatch & Download PDF */}
                   <div className="flex flex-wrap items-center justify-between gap-2.5 pt-1">
                     <button
-                      onClick={() => {
-                        authFetch(`${getApiBaseUrl()}/api/alerts/dispatch-auto`, {
-                          method: 'POST',
-                          headers: { 'Content-Type': 'application/json' },
-                          body: JSON.stringify({
-                            targetName: scanResult.target.name,
-                            targetId: scanResult.target.id,
-                            crimeType: scanResult.target.crimeType,
-                            cameraNode: scanTab === 'cctv' ? selectedCctvLocation : 'Live Webcam - Primary Station',
-                            confidence: `${((1 - parseFloat(scanResult.distance || 0.4)) * 100).toFixed(1)}%`,
-                            incidentDateTime: scanResult.target.incidentDateTime || new Date().toLocaleString(),
-                            lat: userLocation?.lat,
-                            lng: userLocation?.lng
-                          })
-                        }).then(r => r.json()).then(res => {
-                          showToast(
-                            "🚨 Background Alert Re-Dispatched",
-                            "Alert Auto-Dispatched to Active Contacts via Background API",
-                            "success"
-                          );
-                        }).catch(e => console.warn("Background dispatch API warning:", e));
+                      onClick={async () => {
+                        try {
+                          const res = await authFetch(`${getApiBaseUrl()}/api/criminal/dispatch-alert`, {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({
+                              criminal_id: scanResult.target.id,
+                              criminal_name: scanResult.target.name,
+                              photo_url: scanResult.target.photoUrl || scanResult.target.photo,
+                              risk_level: scanResult.target.riskLevel || 'Critical Risk',
+                              crime_details: scanResult.target.details || scanResult.target.crimeType || 'Under Active Watchlist Surveillance',
+                              ipc_charges: scanResult.target.charges || scanResult.target.ipcCharges || 'IPC 302 / 395',
+                              age: scanResult.target.age || '32',
+                              cam_id: scanTab === 'cctv' ? (selectedCctvId || 'WEB-Cam01') : 'WEB-Cam01',
+                              location: scanTab === 'cctv' ? selectedCctvLocation : 'Sandhalpur, Nemawar Highway, MP, India',
+                              lat: userLocation?.lat || 22.504429,
+                              lng: userLocation?.lng || 76.979752,
+                              force: true
+                            })
+                          });
+                          if (res.ok) {
+                            const data = await res.json();
+                            const stationName = data.nearest_police_station?.police_station_name || 'Station HQ';
+                            const emails = data.dispatched_officers || data.nearest_police_station?.officer_emails || [];
+                            showToast("🚨 Alert Dispatched", `Email Alert Sent to ${emails.join(', ') || 'Registered Officers'} (${stationName})`, "success");
+                          } else {
+                            showToast("Alert Dispatch Warning", "Could not complete alert dispatch.", "error");
+                          }
+                        } catch (e) {
+                          console.error("Re-trigger alert error:", e);
+                          showToast("Alert Dispatch Error", "Failed to dispatch email alert.", "error");
+                        }
                       }}
                       className="px-4 py-2 rounded-xl bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white font-bold text-xs shadow-md transition-all flex items-center space-x-1.5 cursor-pointer active:scale-98"
                     >
@@ -2419,27 +2431,38 @@ export const CriminalTracking = () => {
             <div className="flex flex-wrap items-center justify-end gap-3 pt-2">
               <button
                 type="button"
-                onClick={() => {
-                  authFetch(`${getApiBaseUrl()}/api/alerts/dispatch-auto`, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({
-                      targetName: screenDetectionAlert.name,
-                      targetId: screenDetectionAlert.id,
-                      crimeType: screenDetectionAlert.crimeDetails,
-                      risk_level: screenDetectionAlert.riskLevel,
-                      age: screenDetectionAlert.age,
-                      ipc_charges: screenDetectionAlert.ipcCharges,
-                      photo_url: screenDetectionAlert.photoUrl,
-                      cameraNode: screenDetectionAlert.cameraNode,
-                      confidence: screenDetectionAlert.confidence,
-                      incidentDateTime: new Date().toLocaleString(),
-                      lat: screenDetectionAlert.lat,
-                      lng: screenDetectionAlert.lng
-                    })
-                  }).then(r => r.json()).then(() => {
-                    showToast("🚨 Alert Dispatched", "Email & Emergency Notifications Sent with 7 Real-Time Fields", "success");
-                  });
+                onClick={async () => {
+                  try {
+                    const res = await authFetch(`${getApiBaseUrl()}/api/criminal/dispatch-alert`, {
+                      method: 'POST',
+                      headers: { 'Content-Type': 'application/json' },
+                      body: JSON.stringify({
+                        criminal_id: screenDetectionAlert.id,
+                        criminal_name: screenDetectionAlert.name,
+                        photo_url: screenDetectionAlert.photoUrl,
+                        risk_level: screenDetectionAlert.riskLevel,
+                        crime_details: screenDetectionAlert.crimeDetails,
+                        ipc_charges: screenDetectionAlert.ipcCharges,
+                        age: screenDetectionAlert.age,
+                        cam_id: scanTab === 'cctv' ? (selectedCctvId || 'WEB-Cam01') : 'WEB-Cam01',
+                        location: screenDetectionAlert.cameraNode,
+                        lat: screenDetectionAlert.lat,
+                        lng: screenDetectionAlert.lng,
+                        force: true
+                      })
+                    });
+                    if (res.ok) {
+                      const data = await res.json();
+                      const stationName = data.nearest_police_station?.police_station_name || 'Station HQ';
+                      const emails = data.dispatched_officers || data.nearest_police_station?.officer_emails || [];
+                      showToast("🚨 Alert Dispatched", `Email Alert Sent to ${emails.join(', ') || 'Registered Officers'} (${stationName})`, "success");
+                    } else {
+                      showToast("Alert Dispatch Warning", "Could not complete alert dispatch.", "error");
+                    }
+                  } catch (e) {
+                    console.error("Re-trigger alert error:", e);
+                    showToast("Alert Dispatch Error", "Failed to dispatch email alert.", "error");
+                  }
                 }}
                 className="px-4 py-2.5 rounded-xl bg-gradient-to-r from-red-600 to-rose-700 hover:from-red-700 hover:to-rose-800 text-white font-bold text-xs shadow-lg transition-all flex items-center space-x-2 cursor-pointer active:scale-95"
               >

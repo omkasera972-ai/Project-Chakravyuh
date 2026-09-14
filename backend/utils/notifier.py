@@ -548,6 +548,7 @@ async def send_criminal_alert(
 
     # STEP 4: Camera & Location Resolution from Camera Network DB
     requested_cam = location_data.get("cam_id") or location_data.get("camera_id") or location_data.get("cameraNode") or location_data.get("cameraName") or ""
+    clean_cam = requested_cam.split('(')[0].strip() if requested_cam else ""
     
     camera_net_id = None
     camera_net_location = None
@@ -557,39 +558,49 @@ async def send_criminal_alert(
     if db_criminal is not None:
         try:
             cam_doc = None
-            if requested_cam:
-                cam_q = {
-                    "$or": [
-                        {"camera_id": requested_cam},
-                        {"id": requested_cam},
-                        {"camera_name": requested_cam},
-                        {"name": requested_cam}
-                    ]
-                }
-                if admin_id:
-                    cam_q["admin_id"] = admin_id
-                cam_doc = await db_criminal["camera_network"].find_one(cam_q)
+            or_list = []
+            for candidate in [clean_cam, requested_cam]:
+                if candidate:
+                    or_list.extend([
+                        {"camera_id": candidate},
+                        {"id": candidate},
+                        {"camera_name": candidate},
+                        {"name": candidate},
+                        {"camera_id": {"$regex": f"^{re.escape(candidate)}$", "$options": "i"}},
+                        {"camera_name": {"$regex": f"^{re.escape(candidate)}$", "$options": "i"}}
+                    ])
             
-            # Fallback to any registered camera in camera_network collection if specific camera ID not found
-            if not cam_doc:
-                filter_q = {"admin_id": admin_id} if admin_id else {}
-                cursor = db_criminal["camera_network"].find(filter_q)
-                all_cams = await cursor.to_list(length=10)
-                if not all_cams and admin_id:
-                    cursor = db_criminal["camera_network"].find({})
+            if or_list:
+                cam_q = {"$or": or_list}
+                if admin_id:
+                    cam_q_admin = {**cam_q, "admin_id": admin_id}
+                    cam_doc = await db_criminal["camera_network"].find_one(cam_q_admin)
+                if not cam_doc:
+                    cam_doc = await db_criminal["camera_network"].find_one(cam_q)
+
+            # Fallback to any valid camera with non-null lat/lng in camera_network collection
+            if not cam_doc or (cam_doc.get("latitude") is None and cam_doc.get("lat") is None):
+                filter_valid = {"$or": [{"latitude": {"$ne": None}}, {"lat": {"$ne": None}}]}
+                if admin_id:
+                    cursor = db_criminal["camera_network"].find({"$and": [{"admin_id": admin_id}, filter_valid]})
                     all_cams = await cursor.to_list(length=10)
-                if all_cams:
-                    cam_doc = all_cams[0]
+                    if all_cams:
+                        cam_doc = all_cams[0]
+                if not cam_doc:
+                    cursor = db_criminal["camera_network"].find(filter_valid)
+                    all_cams = await cursor.to_list(length=10)
+                    if all_cams:
+                        cam_doc = all_cams[0]
 
             if cam_doc:
-                camera_net_id = cam_doc.get("camera_id") or cam_doc.get("id") or cam_doc.get("camera_name") or "CAM-NODE-01"
+                camera_net_id = cam_doc.get("camera_id") or cam_doc.get("id") or cam_doc.get("camera_name") or "WEB-Cam01"
                 camera_net_location = cam_doc.get("location") or cam_doc.get("address") or cam_doc.get("camera_name")
                 camera_net_lat = cam_doc.get("latitude") if cam_doc.get("latitude") is not None else cam_doc.get("lat")
                 camera_net_lng = cam_doc.get("longitude") if cam_doc.get("longitude") is not None else cam_doc.get("lng")
         except Exception as e:
             logger.warning(f"[CAMERA NETWORK DB LOOKUP NOTICE] {e}")
 
-    cam_id = camera_net_id or (requested_cam if requested_cam and "webcam" not in requested_cam.lower() else "CAM-NEMAWAR-01")
+    cam_id = camera_net_id or (clean_cam if clean_cam and "webcam" not in clean_cam.lower() else "WEB-Cam01")
     cam_location_name = camera_net_location or location_data.get("camera_location") or location_data.get("location") or "Nemawar Bypass Camera Node, MP, India"
     
     lat = float(camera_net_lat if camera_net_lat is not None else (location_data.get("lat") or 22.4632))

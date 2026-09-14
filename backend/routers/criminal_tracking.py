@@ -417,14 +417,29 @@ async def test_camera_police_distance_routing(payload: Dict[str, Any] = Body(...
         }
 
     # 1. Lookup Camera in Criminal_traking.camera_network
-    cam_doc = await db_criminal["camera_network"].find_one({
-        "$or": [
-            {"camera_id": cam_id},
-            {"id": cam_id},
-            {"camera_name": cam_id},
-            {"name": cam_id}
-        ]
-    })
+    clean_cam_id = cam_id.split('(')[0].strip() if cam_id else ""
+    cam_doc = None
+    or_list = []
+    for candidate in [clean_cam_id, cam_id]:
+        if candidate:
+            or_list.extend([
+                {"camera_id": candidate},
+                {"id": candidate},
+                {"camera_name": candidate},
+                {"name": candidate},
+                {"camera_id": {"$regex": f"^{re.escape(candidate)}$", "$options": "i"}},
+                {"camera_name": {"$regex": f"^{re.escape(candidate)}$", "$options": "i"}}
+            ])
+    if or_list:
+        cam_doc = await db_criminal["camera_network"].find_one({"$or": or_list})
+
+    # Fallback to any valid camera with non-null lat/lng in camera_network collection
+    if not cam_doc or (cam_doc.get("latitude") is None and cam_doc.get("lat") is None):
+        filter_valid = {"$or": [{"latitude": {"$ne": None}}, {"lat": {"$ne": None}}]}
+        cursor = db_criminal["camera_network"].find(filter_valid)
+        all_cams = await cursor.to_list(length=10)
+        if all_cams:
+            cam_doc = all_cams[0]
 
     if cam_doc:
         cam_name = cam_doc.get("camera_name") or cam_doc.get("name") or cam_id
