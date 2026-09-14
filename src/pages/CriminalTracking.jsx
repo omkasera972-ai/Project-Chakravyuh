@@ -31,7 +31,7 @@ import {
   Smartphone
 } from 'lucide-react';
 import { useApp } from '../context/AppContext';
-import { getApiBaseUrl } from '../utils/dateUtils';
+import { getApiBaseUrl, compressImageDataUrl } from '../utils/dateUtils';
 import { StatCard } from '../components/StatCard';
 import { CctvView } from '../components/CctvView';
 import { CriminalMapSection } from '../components/CriminalMapSection';
@@ -370,9 +370,11 @@ export const CriminalTracking = () => {
     const file = e.target.files[0];
     if (file) {
       const reader = new FileReader();
-      reader.onloadend = () => {
-        setNewPhotoPreview(reader.result);
-        setNewFormData(prev => ({ ...prev, photoUrl: reader.result }));
+      reader.onloadend = async () => {
+        const rawDataUrl = reader.result;
+        const compressed = await compressImageDataUrl(rawDataUrl, 400, 0.85);
+        setNewPhotoPreview(compressed);
+        setNewFormData(prev => ({ ...prev, photoUrl: compressed }));
       };
       reader.readAsDataURL(file);
     }
@@ -397,9 +399,11 @@ export const CriminalTracking = () => {
     const file = e.target.files[0];
     if (file) {
       const reader = new FileReader();
-      reader.onloadend = () => {
-        setNewPhotoPreview(reader.result);
-        setNewFormData(prev => ({ ...prev, photoUrl: reader.result }));
+      reader.onloadend = async () => {
+        const rawDataUrl = reader.result;
+        const compressed = await compressImageDataUrl(rawDataUrl, 400, 0.85);
+        setNewPhotoPreview(compressed);
+        setNewFormData(prev => ({ ...prev, photoUrl: compressed }));
       };
       reader.readAsDataURL(file);
     }
@@ -1743,6 +1747,10 @@ export const CriminalTracking = () => {
                     <img
                       src={scanResult.target.photoUrl || scanImage}
                       alt={scanResult.target.name}
+                      onError={(e) => {
+                        e.target.onerror = null;
+                        e.target.src = 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150&auto=format&fit=crop&q=80';
+                      }}
                       className="w-24 h-24 sm:w-28 sm:h-28 rounded-xl object-cover border-2 border-red-500 shadow-md flex-shrink-0 mx-auto sm:mx-0"
                     />
                     <div className="space-y-2 flex-1">
@@ -1976,7 +1984,15 @@ export const CriminalTracking = () => {
                       <td className="py-2.5 px-3.5">
                         <div className="w-9 h-9 rounded-xl overflow-hidden border border-gray-200 dark:border-gray-700 bg-gray-100 dark:bg-gray-800 flex items-center justify-center">
                           {target.photoUrl ? (
-                            <img src={target.photoUrl} alt={target.name} className="w-full h-full object-cover" />
+                            <img
+                              src={target.photoUrl}
+                              alt={target.name}
+                              onError={(e) => {
+                                e.target.onerror = null;
+                                e.target.src = 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150&auto=format&fit=crop&q=80';
+                              }}
+                              className="w-full h-full object-cover"
+                            />
                           ) : (
                             <span className="text-base">{target.photo || '👤'}</span>
                           )}
@@ -2054,7 +2070,15 @@ export const CriminalTracking = () => {
             <div className="flex items-center space-x-4">
               <div className="w-16 h-16 rounded-2xl overflow-hidden border-2 border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800 flex items-center justify-center flex-shrink-0">
                 {selectedProfile.photoUrl ? (
-                  <img src={selectedProfile.photoUrl} alt={selectedProfile.name} className="w-full h-full object-cover" />
+                  <img
+                    src={selectedProfile.photoUrl}
+                    alt={selectedProfile.name}
+                    onError={(e) => {
+                      e.target.onerror = null;
+                      e.target.src = 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150&auto=format&fit=crop&q=80';
+                    }}
+                    className="w-full h-full object-cover"
+                  />
                 ) : (
                   <span className="text-3xl">{selectedProfile.photo}</span>
                 )}
@@ -2306,6 +2330,10 @@ export const CriminalTracking = () => {
               <img
                 src={screenDetectionAlert.photoUrl}
                 alt={screenDetectionAlert.name}
+                onError={(e) => {
+                  e.target.onerror = null;
+                  e.target.src = 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150&auto=format&fit=crop&q=80';
+                }}
                 className="w-32 h-32 sm:w-36 sm:h-36 rounded-2xl object-cover border-4 border-red-600 shadow-2xl flex-shrink-0"
               />
               <div className="space-y-2 flex-1 text-center sm:text-left">

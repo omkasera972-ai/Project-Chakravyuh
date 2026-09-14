@@ -21,6 +21,7 @@ import {
   Clock
 } from 'lucide-react';
 import { useApp } from '../context/AppContext';
+import { compressImageDataUrl } from '../utils/dateUtils';
 import * as faceapi from '@vladmandic/face-api';
 
 let modelsLoaded = false;
@@ -149,7 +150,7 @@ export const AddCriminal = () => {
     setCameraActive(false);
   };
 
-  const captureCameraFrame = () => {
+  const captureCameraFrame = async () => {
     if (!videoRef.current || !canvasRef.current) return;
     const video = videoRef.current;
     const canvas = canvasRef.current;
@@ -157,20 +158,22 @@ export const AddCriminal = () => {
     canvas.height = video.videoHeight || 480;
     const ctx = canvas.getContext('2d');
     ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
-    const dataUrl = canvas.toDataURL('image/jpeg', 0.94);
+    const dataUrl = canvas.toDataURL('image/jpeg', 0.85);
+    const compressed = await compressImageDataUrl(dataUrl, 400, 0.85);
     stopCamera();
-    setPhotoUrl(dataUrl);
-    processFaceAi(dataUrl);
+    setPhotoUrl(compressed);
+    processFaceAi(compressed);
   };
 
   const handleFileUpload = (e) => {
     const file = e.target.files?.[0];
     if (!file) return;
     const reader = new FileReader();
-    reader.onload = (evt) => {
-      const dataUrl = evt.target.result;
-      setPhotoUrl(dataUrl);
-      processFaceAi(dataUrl);
+    reader.onload = async (evt) => {
+      const rawDataUrl = evt.target.result;
+      const compressed = await compressImageDataUrl(rawDataUrl, 400, 0.85);
+      setPhotoUrl(compressed);
+      processFaceAi(compressed);
     };
     reader.readAsDataURL(file);
   };

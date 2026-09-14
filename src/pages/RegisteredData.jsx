@@ -642,7 +642,15 @@ export const RegisteredData = () => {
                       <td className="py-3.5 px-3.5">
                         <div className="w-10 h-10 rounded-xl bg-blue-50 dark:bg-blue-950/60 border border-blue-200 dark:border-blue-800 overflow-hidden flex items-center justify-center text-lg flex-shrink-0 shadow-xs">
                           {item.photoUrl ? (
-                            <img src={item.photoUrl} alt={item.name || item.item} className="w-full h-full object-cover" />
+                            <img
+                              src={item.photoUrl}
+                              alt={item.name || item.item}
+                              onError={(e) => {
+                                e.target.onerror = null;
+                                e.target.src = 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150&auto=format&fit=crop&q=80';
+                              }}
+                              className="w-full h-full object-cover"
+                            />
                           ) : (
                             <span>{isDefence ? '🛡️' : (item.avatar || item.photo || '👤')}</span>
                           )}

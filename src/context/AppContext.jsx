@@ -1136,6 +1136,9 @@ export const AppProvider = ({ children }) => {
   // 2. CRIMINAL TRACKING MODULE HANDLERS
   // ---------------------------------------------------------
   const addToWatchlist = async (item) => {
+    const rawPhoto = item.photoUrl || item.photo || null;
+    const compressedPhoto = await compressImageDataUrl(rawPhoto, 400, 0.85);
+
     const record = {
       ...item,
       id: item.id || `W-${Math.floor(9000 + Math.random() * 999)}`,
@@ -1147,7 +1150,7 @@ export const AppProvider = ({ children }) => {
       lastSeen: item.lastSeen || item.location || 'CAM-01 Primary Station',
       status: item.status || 'REGISTERED & ACTIVE',
       confidence: item.confidence || '98.5%',
-      photoUrl: item.photoUrl || item.photo || null,
+      photoUrl: compressedPhoto,
       age: item.age || 32,
       details: item.details || item.crimeType || 'Registered into criminal watchlist.',
       embedding: item.embedding || null

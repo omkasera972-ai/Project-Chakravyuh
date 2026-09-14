@@ -52,3 +52,36 @@ export const getApiBaseUrl = () => {
   }
   return 'http://127.0.0.1:8000';
 };
+
+export const compressImageDataUrl = (dataUrl, maxDim = 400, quality = 0.85) => {
+  return new Promise((resolve) => {
+    if (!dataUrl || typeof dataUrl !== 'string') return resolve(dataUrl);
+    if (!dataUrl.startsWith('data:image')) return resolve(dataUrl);
+    // Skip if already small (< 80 KB)
+    if (dataUrl.length < 80000) return resolve(dataUrl);
+
+    const img = new Image();
+    img.crossOrigin = 'Anonymous';
+    img.onload = () => {
+      let width = img.width;
+      let height = img.height;
+      if (width > maxDim || height > maxDim) {
+        if (width > height) {
+          height = Math.round((height * maxDim) / width);
+          width = maxDim;
+        } else {
+          width = Math.round((width * maxDim) / height);
+          height = maxDim;
+        }
+      }
+      const canvas = document.createElement('canvas');
+      canvas.width = width;
+      canvas.height = height;
+      const ctx = canvas.getContext('2d');
+      ctx.drawImage(img, 0, 0, width, height);
+      resolve(canvas.toDataURL('image/jpeg', quality));
+    };
+    img.onerror = () => resolve(dataUrl);
+    img.src = dataUrl;
+  });
+};
