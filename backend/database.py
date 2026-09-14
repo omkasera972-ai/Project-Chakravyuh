@@ -58,6 +58,16 @@ class LocalDeleteResult:
     def __init__(self, deleted_count: int):
         self.deleted_count = deleted_count
 
+class LocalInsertOneResult:
+    def __init__(self, inserted_id: Any):
+        self.inserted_id = inserted_id
+
+class LocalUpdateResult:
+    def __init__(self, matched_count: int = 1, modified_count: int = 1, upserted_id: Any = None):
+        self.matched_count = matched_count
+        self.modified_count = modified_count
+        self.upserted_id = upserted_id
+
 class LocalCollection:
     def __init__(self, db_name: str, coll_name: str):
         self.db_name = db_name
@@ -127,14 +137,23 @@ class LocalCollection:
     async def insert_one(self, document: Dict[str, Any]):
         self._load()
         c = dict(document)
+        if "_id" not in c:
+            c["_id"] = str(c.get("id") or str(int(time.time() * 1000)))
+        else:
+            c["_id"] = str(c["_id"])
         self.docs.append(c)
         self._save()
-        return c
+        return LocalInsertOneResult(c["_id"])
 
     async def insert_many(self, documents: List[Dict[str, Any]]):
         self._load()
         for doc in documents:
-            self.docs.append(dict(doc))
+            c = dict(doc)
+            if "_id" not in c:
+                c["_id"] = str(c.get("id") or str(int(time.time() * 1000)))
+            else:
+                c["_id"] = str(c["_id"])
+            self.docs.append(c)
         self._save()
 
     async def update_one(self, filter_query: Dict[str, Any], update_cmd: Dict[str, Any], upsert: bool = False):
@@ -150,8 +169,11 @@ class LocalCollection:
         elif upsert:
             new_doc = dict(filter_query)
             new_doc.update(set_fields)
+            if "_id" not in new_doc:
+                new_doc["_id"] = str(new_doc.get("id") or str(int(time.time() * 1000)))
             self.docs.append(new_doc)
         self._save()
+        return LocalUpdateResult(1 if target else (1 if upsert else 0), 1 if target else 0)
 
     async def delete_one(self, filter_query: Dict[str, Any]) -> LocalDeleteResult:
         self._load()

@@ -155,7 +155,14 @@ async def generic_create(collection, payload: Dict[str, Any], admin_id: str) -> 
         doc_data["timestamp"] = doc_data.get("timestamp") or server_time["timestamp"]
 
         res = await collection.insert_one(doc_data)
-        doc_data["_id"] = str(res.inserted_id)
+        if hasattr(res, "inserted_id"):
+            doc_data["_id"] = str(res.inserted_id)
+        elif isinstance(res, dict) and "_id" in res:
+            doc_data["_id"] = str(res["_id"])
+        elif "_id" in doc_data:
+            doc_data["_id"] = str(doc_data["_id"])
+        else:
+            doc_data["_id"] = str(doc_data.get("id", str(int(server_time["timestamp"]))))
         return {"status": "success", "message": "Document created successfully", "data": serialize_doc(doc_data)}
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Database insert error: {str(e)}")

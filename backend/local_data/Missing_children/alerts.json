@@ -1,17 +1,5 @@
 [
   {
-    "_id": "6aa31089ede99b9df24e9c59",
-    "case_id": "CHILD_001",
-    "alert": "Positive Facial Match Detected",
-    "admin_id": "ADM-CRIM-1789132093"
-  },
-  {
-    "_id": "6aa310a9aa22d3be47192b81",
-    "case_id": "CHILD_001",
-    "alert": "Positive Facial Match Detected",
-    "admin_id": "ADM-CRIM-1789132093"
-  },
-  {
     "_id": "6aa31ac7667d22953e417546",
     "module": "missing-child",
     "type": "Missing Person Sighting",

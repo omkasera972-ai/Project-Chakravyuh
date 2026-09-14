@@ -1,11 +1,5 @@
 [
   {
-    "_id": "6aa310a9aa22d3be47192b85",
-    "unit_id": "UNIT_99",
-    "alert": "Perimeter Breach Alert",
-    "admin_id": "ADM-CRIM-1789132093"
-  },
-  {
     "_id": "6aa597032989f6cf5de46496",
     "unit_id": "UNIT_99",
     "alert": "Perimeter Breach Alert"
