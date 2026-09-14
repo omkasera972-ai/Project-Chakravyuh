@@ -1134,7 +1134,10 @@ export const AppProvider = ({ children }) => {
   // ---------------------------------------------------------
   const addToWatchlist = async (item) => {
     const rawPhoto = item.photoUrl || item.photo || null;
-    const compressedPhoto = await compressImageDataUrl(rawPhoto, 400, 0.85);
+    let compressedPhoto = rawPhoto;
+    if (rawPhoto && typeof rawPhoto === 'string' && rawPhoto.length > 100000) {
+      compressedPhoto = await compressImageDataUrl(rawPhoto, 350, 0.8);
+    }
 
     const record = {
       ...item,
@@ -1168,52 +1171,47 @@ export const AppProvider = ({ children }) => {
       String(w.name || '').trim().toLowerCase() !== targetNameLower
     )]);
 
-    // 2. Try MongoDB Atlas backend sync & report generation
-    try {
-      const res = await authFetch('http://127.0.0.1:8000/api/criminal/watchlist', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(record)
-      });
-      const data = await res.json().catch(() => ({}));
-      if (res.ok && (data.status === 'success' || data._id || data.data)) {
-        const savedRecord = (data && data.data) ? { ...record, ...data.data } : record;
-        setWatchlist(prev => [savedRecord, ...prev.filter(w => w.id !== savedRecord.id)]);
-        setCachedData('sda_cache_watchlist', [savedRecord, ...watchlist.filter(w => w.id !== savedRecord.id)]);
+    // 2. Non-blocking MongoDB Atlas backend sync & report generation
+    (async () => {
+      try {
+        const res = await authFetch('/api/criminal/watchlist', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(record)
+        });
+        const data = await res.json().catch(() => ({}));
+        if (res.ok && (data.status === 'success' || data._id || data.data)) {
+          const savedRecord = (data && data.data) ? { ...record, ...data.data } : record;
+          setWatchlist(prev => [savedRecord, ...prev.filter(w => w.id !== savedRecord.id)]);
+          setCachedData('sda_cache_watchlist', [savedRecord, ...watchlist.filter(w => w.id !== savedRecord.id)]);
 
-        // Auto-generate official dossier report
-        const reportPayload = {
-          id: `REP-${savedRecord.id}`,
-          title: `Criminal Dossier: ${savedRecord.name} (${savedRecord.id})`,
-          category: 'Criminal Dossier',
-          suspectName: savedRecord.name,
-          suspectId: savedRecord.id,
-          photoUrl: savedRecord.photoUrl,
-          riskLevel: savedRecord.riskLevel,
-          crimeType: savedRecord.crimeType,
-          details: savedRecord.details,
-          date: new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }),
-          generatedAt: new Date().toISOString(),
-          status: 'ACTIVE WATCHLIST'
-        };
-        try {
-          await authFetch('http://127.0.0.1:8000/api/criminal/reports', {
+          // Non-blocking auto-generate official dossier report
+          const reportPayload = {
+            id: `REP-${savedRecord.id}`,
+            title: `Criminal Dossier: ${savedRecord.name} (${savedRecord.id})`,
+            category: 'Criminal Dossier',
+            suspectName: savedRecord.name,
+            suspectId: savedRecord.id,
+            photoUrl: savedRecord.photoUrl,
+            riskLevel: savedRecord.riskLevel,
+            crimeType: savedRecord.crimeType,
+            details: savedRecord.details,
+            date: new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }),
+            generatedAt: new Date().toISOString(),
+            status: 'ACTIVE WATCHLIST'
+          };
+          authFetch('/api/criminal/reports', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(reportPayload)
-          });
-        } catch (repErr) {}
-
-        showToast('Target Registered', `${savedRecord.name} saved to MongoDB Atlas watchlist.`, 'success');
-        return { success: true, data: savedRecord };
-      } else {
-        console.warn("MongoDB sync notice (saved locally):", data.detail || res.statusText);
+          }).catch(() => {});
+        }
+      } catch (e) {
+        console.warn("MongoDB criminal sync notice:", e);
       }
-    } catch (e) {
-      console.warn("MongoDB criminal sync notice (saved locally):", e);
-    }
+    })();
 
-    showToast('Target Registered', `${record.name} added to criminal watchlist.`, 'success');
+    showToast('Target Registered', `${record.name} saved to criminal watchlist.`, 'success');
     return { success: true, data: record };
   };
 

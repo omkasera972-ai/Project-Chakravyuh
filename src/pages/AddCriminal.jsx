@@ -305,10 +305,8 @@ export const AddCriminal = () => {
       const res = await addToWatchlist(newCriminalRecord);
 
       if (res && res.success) {
-        setTimeout(() => {
-          setIsSubmitting(false);
-          navigate('/portal/criminal-tracking/criminal-tracking');
-        }, 500);
+        setIsSubmitting(false);
+        navigate('/portal/criminal-tracking/criminal-tracking');
       } else {
         setIsSubmitting(false);
         setFormError(res?.error || "Registration failed. Please check authorization.");
@@ -318,10 +316,7 @@ export const AddCriminal = () => {
       setIsSubmitting(false);
       setFormError(err.message || "An error occurred during submission.");
     } finally {
-      // Guarantee loading button is never stuck
-      setTimeout(() => {
-        setIsSubmitting(false);
-      }, 2000);
+      setIsSubmitting(false);
     }
   };
 

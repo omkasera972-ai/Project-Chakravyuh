@@ -240,7 +240,7 @@ const RecenterMap = ({ center, zoom = 14 }) => {
 };
 
 export const CriminalMapSection = ({ onDispatchAlert }) => {
-  const { dispatchPhoneNumbers = [], showToast, userLocation } = useApp();
+  const { dispatchPhoneNumbers = [], showToast, userLocation, authFetch } = useApp();
   // Default Live Web Camera Coordinates (Central Highway CCTV Node)
   const [liveCameraCoords, setLiveCameraCoords] = useState([22.7240, 75.8650]);
   const [mapCenter, setMapCenter] = useState([22.7240, 75.8650]);
@@ -281,7 +281,8 @@ export const CriminalMapSection = ({ onDispatchAlert }) => {
 
     contactsToNotify.forEach((contact) => {
       try {
-        fetch('http://127.0.0.1:8000/api/police/emergency-dispatch', {
+        const doDispatch = authFetch ? authFetch : fetch;
+        doDispatch('/api/police/emergency-dispatch', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
