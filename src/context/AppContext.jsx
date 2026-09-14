@@ -566,10 +566,7 @@ export const AppProvider = ({ children }) => {
   const [watchlist, setWatchlist] = useState(() => getCachedData('sda_cache_watchlist', []));
 
   useEffect(() => {
-    console.log(`[REGISTERED DATA STATE]\ncount: ${watchlist.length}\nIDs: ${watchlist.map(w => w.id || w._id).join(', ')}`);
-    if (watchlist.length === 0) {
-      console.warn(`[RESET DETECTION]\nIf registered data becomes []:\nprint EXACTLY which function/component caused it:\n${new Error().stack}`);
-    }
+    console.log(`[REGISTERED DATA STATE] count: ${watchlist.length}`);
   }, [watchlist]);
   const [vehicles, setVehicles] = useState(() => getCachedData('sda_cache_vehicles', []));
   const [missingChildren, setMissingChildren] = useState(() => getCachedData('sda_cache_missing_children', []));

@@ -43,6 +43,21 @@ MONGO_URI = os.getenv("MONGO_URI") or os.getenv("MONGODB_URL")
 
 LOCAL_DATA_DIR = os.path.join(os.path.dirname(__file__), "local_data")
 
+# Check if LOCAL_DATA_DIR is writable (e.g., read-only filesystem on serverless environments like Vercel/Lambda)
+try:
+    os.makedirs(LOCAL_DATA_DIR, exist_ok=True)
+    test_file = os.path.join(LOCAL_DATA_DIR, ".write_test")
+    with open(test_file, "w") as f:
+        f.write("ok")
+    os.remove(test_file)
+except Exception:
+    import tempfile
+    LOCAL_DATA_DIR = os.path.join(tempfile.gettempdir(), "chakravyuh_local_data")
+    try:
+        os.makedirs(LOCAL_DATA_DIR, exist_ok=True)
+    except Exception:
+        pass
+
 # Fallback classes for local storage when cluster is offline
 class LocalCursor:
     def __init__(self, data: List[Dict[str, Any]]):
@@ -72,7 +87,10 @@ class LocalCollection:
         self.db_name = db_name
         self.coll_name = coll_name
         self.dir_path = os.path.join(LOCAL_DATA_DIR, db_name)
-        os.makedirs(self.dir_path, exist_ok=True)
+        try:
+            os.makedirs(self.dir_path, exist_ok=True)
+        except Exception:
+            pass
         self.file_path = os.path.join(self.dir_path, f"{coll_name}.json")
         self.docs = []
         self._load()
@@ -89,8 +107,11 @@ class LocalCollection:
         return self.docs
 
     def _save(self):
-        with open(self.file_path, "w", encoding="utf-8") as f:
-            json.dump(self.docs, f, indent=2, ensure_ascii=False)
+        try:
+            with open(self.file_path, "w", encoding="utf-8") as f:
+                json.dump(self.docs, f, indent=2, ensure_ascii=False)
+        except Exception as err:
+            logger.warning(f"[LOCAL STORAGE WRITE NOTICE] Could not write local file '{self.file_path}': {err}")
 
     def _matches(self, doc: Dict[str, Any], query: Dict[str, Any]) -> bool:
         if not query:
