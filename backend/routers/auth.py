@@ -309,41 +309,4 @@ async def get_current_admin_profile(authorization: Optional[str] = Header(None))
         }
     }
 
-@router.get("/suggested-accounts/{module_id}")
-@router.get("/suggested_accounts/{module_id}")
-async def get_suggested_accounts(module_id: str):
-    """
-    Returns available registered usernames and public account labels ONLY for specified module.
-    STRICT SECURITY RULE: Passwords and password_hash fields are NEVER returned or exposed.
-    """
-    accounts = []
-    seen_usernames = set()
-
-    try:
-        coll = get_auth_collection(module_id)
-        cursor = coll.find({})
-        user_docs = await cursor.to_list(length=50)
-        for doc in user_docs:
-            u_name = (doc.get("username") or "").strip()
-            if u_name and u_name.lower() not in seen_usernames:
-                seen_usernames.add(u_name.lower())
-                role_label = doc.get("role") or "Admin"
-                accounts.append({
-                    "username": u_name,
-                    "label": f"{u_name} ({role_label})"
-                })
-    except Exception:
-        pass
-
-    # Ensure fallback suggested accounts exist
-    if not accounts:
-        accounts = [
-            {"username": "admin", "label": "admin (Default System Admin)"}
-        ]
-
-    return {
-        "status": "success",
-        "moduleId": module_id,
-        "accounts": accounts
-    }
 
