@@ -268,14 +268,18 @@ export const CriminalTracking = () => {
     const processLazyEmbeddings = async () => {
       for (const target of watchlist) {
         if (isCancelled) break;
-        if (target && target.id && !referenceEmbeddingsRef.current[target.id] && target.photoUrl) {
-          try {
-            const res = await detectAndExtractFaceDescriptor(target.photoUrl);
-            if (res.hasFace && res.descriptor) {
-              referenceEmbeddingsRef.current[target.id] = res.descriptor;
-            }
-          } catch (err) {}
-          await new Promise(resolve => setTimeout(resolve, 50));
+        if (target && target.id) {
+          if (Array.isArray(target.embedding) && target.embedding.length > 0) {
+            referenceEmbeddingsRef.current[target.id] = target.embedding;
+          } else if (!referenceEmbeddingsRef.current[target.id] && target.photoUrl) {
+            try {
+              const res = await detectAndExtractFaceDescriptor(target.photoUrl);
+              if (res.hasFace && res.descriptor) {
+                referenceEmbeddingsRef.current[target.id] = res.descriptor;
+              }
+            } catch (err) {}
+            await new Promise(resolve => setTimeout(resolve, 50));
+          }
         }
       }
     };

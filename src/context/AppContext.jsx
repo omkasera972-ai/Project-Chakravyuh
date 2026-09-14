@@ -1143,7 +1143,7 @@ export const AppProvider = ({ children }) => {
       ...item,
       id: item.id || `W-${Math.floor(9000 + Math.random() * 999)}`,
       module: item.module || activeModule || 'criminal-tracking',
-      name: item.name,
+      name: item.name ? item.name.trim() : 'Unknown Suspect',
       riskLevel: item.riskLevel || 'High Risk',
       crimeType: item.crimeType || item.charges || item.details || 'Under Watchlist Surveillance',
       charges: item.charges || item.ipcCharges || item.crimeType || 'IPC 302 / 395 - Armed Robbery & Homicide',
@@ -1156,7 +1156,19 @@ export const AppProvider = ({ children }) => {
       embedding: item.embedding || null
     };
 
+    // 1. Duplicate check in active watchlist
+    const isDuplicate = watchlist.some(w => 
+      (w.id && record.id && String(w.id).trim().toLowerCase() === String(record.id).trim().toLowerCase()) || 
+      (w.name && record.name && w.name.trim().toLowerCase() === record.name.trim().toLowerCase())
+    );
+    if (isDuplicate) {
+      const msg = `Suspect '${record.name}' is already enrolled in the watchlist database.`;
+      showToast('Duplicate Target', msg, 'error');
+      return { success: false, error: msg };
+    }
+
     try {
+      // 2. Save Criminal Document + 128D Embedding to MongoDB Atlas
       const res = await authFetch('http://127.0.0.1:8000/api/criminal/watchlist', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -1167,21 +1179,43 @@ export const AppProvider = ({ children }) => {
         const savedRecord = (data && data.data) ? { ...record, ...data.data } : record;
         setWatchlist(prev => [savedRecord, ...prev.filter(w => w.id !== savedRecord.id)]);
         setCachedData('sda_cache_watchlist', [savedRecord, ...watchlist.filter(w => w.id !== savedRecord.id)]);
-        showToast('Target Registered', `${savedRecord.name} saved to MongoDB Atlas watchlist.`, 'success');
+
+        // 3. Auto-generate Dossier Report in MongoDB reports collection
+        const reportPayload = {
+          id: `REP-${savedRecord.id}`,
+          title: `Criminal Dossier: ${savedRecord.name} (${savedRecord.id})`,
+          category: 'Criminal Dossier',
+          suspectName: savedRecord.name,
+          suspectId: savedRecord.id,
+          photoUrl: savedRecord.photoUrl,
+          riskLevel: savedRecord.riskLevel,
+          crimeType: savedRecord.crimeType,
+          details: savedRecord.details,
+          date: new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }),
+          generatedAt: new Date().toISOString(),
+          status: 'ACTIVE WATCHLIST'
+        };
+        try {
+          await authFetch('http://127.0.0.1:8000/api/criminal/reports', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(reportPayload)
+          });
+        } catch (repErr) {
+          console.warn('Auto report generation notice:', repErr);
+        }
+
+        showToast('Target Registered', `${savedRecord.name} saved to MongoDB Atlas watchlist & report generated.`, 'success');
         return { success: true, data: savedRecord };
       } else {
-        console.warn("Backend criminal sync notice:", data.detail || res.statusText);
-        setWatchlist(prev => [record, ...prev.filter(w => w.id !== record.id)]);
-        setCachedData('sda_cache_watchlist', [record, ...watchlist.filter(w => w.id !== record.id)]);
-        showToast('Target Registered', `${record.name} added to live criminal watchlist.`, 'success');
-        return { success: true, data: record };
+        const detailMsg = data.detail || res.statusText || 'Database save failed';
+        showToast('Registration Error', detailMsg, 'error');
+        return { success: false, error: detailMsg };
       }
     } catch (e) {
-      console.warn("MongoDB criminal sync notice:", e);
-      setWatchlist(prev => [record, ...prev.filter(w => w.id !== record.id)]);
-      setCachedData('sda_cache_watchlist', [record, ...watchlist.filter(w => w.id !== record.id)]);
-      showToast('Target Registered', `${record.name} added to live criminal watchlist.`, 'success');
-      return { success: true, data: record };
+      console.error("MongoDB criminal sync error:", e);
+      showToast('Registration Error', e.message || 'Failed to save target', 'error');
+      return { success: false, error: e.message };
     }
   };
 

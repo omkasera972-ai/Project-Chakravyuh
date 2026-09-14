@@ -278,6 +278,8 @@ async def delete_user_account(doc_id: str, admin_id: str = Depends(get_authentic
     return await generic_delete(db_criminal["user_account.criminal"], doc_id, admin_id=admin_id)
 
 
+import re
+
 # 9. WATCHLIST ROUTE ALIAS (Internal Redirect to Official registered_data Collection)
 @router.get("/watchlist")
 async def get_watchlist(admin_id: str = Depends(get_authenticated_admin_id)):
@@ -288,6 +290,19 @@ async def add_to_watchlist(payload: Dict[str, Any] = Body(...), admin_id: str = 
     import time
     target_id = payload.get("id") or f"W-{int(time.time())}"
     payload["id"] = str(target_id)
+    name = (payload.get("name") or "").strip()
+
+    if name:
+        dup = await db_criminal["registered_data"].find_one({
+            "admin_id": admin_id,
+            "$or": [
+                {"id": payload["id"]},
+                {"name": {"$regex": f"^{re.escape(name)}$", "$options": "i"}}
+            ]
+        })
+        if dup:
+            raise HTTPException(status_code=400, detail=f"Suspect '{name}' is already registered in the watchlist database.")
+
     return await generic_create(db_criminal["registered_data"], payload, admin_id=admin_id)
 
 @router.get("/watchlist/{doc_id}")

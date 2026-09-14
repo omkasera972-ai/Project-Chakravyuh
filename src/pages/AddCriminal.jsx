@@ -273,40 +273,51 @@ export const AddCriminal = () => {
 
     setIsSubmitting(true);
 
-    const generatedId = `W-${Math.floor(9000 + Math.random() * 999)}`;
-    const newCriminalRecord = {
-      id: generatedId,
-      module: 'criminal-tracking',
-      name: formData.name.trim(),
-      aliases: [formData.name.split(' ')[0]],
-      riskLevel: formData.riskLevel,
-      crimeType: formData.crimeType || 'Under Watchlist Surveillance',
-      age: formData.age ? parseInt(formData.age) : 30,
-      lastSeen: formData.lastSeen || 'CAM-03 Highway',
-      photoUrl: photoUrl,
-      photo: '👤',
-      status: 'Active Alert',
-      confidence: aiResult?.confidence ? `${aiResult.confidence}%` : '96.2%',
-      details: `${formData.ipcSection ? `[IPC: ${formData.ipcSection}] ` : ''}${formData.details || 'Registered into criminal watchlist.'}`,
-      physicalMarks: formData.physicalMarks,
-      vehiclePlate: formData.vehiclePlate,
-      policeNumber: formData.policeNumber.trim() ? `${countryCode} ${formData.policeNumber.trim()}` : '',
-      incidentDateTime: formData.incidentDateTime || new Date().toLocaleString(),
-      isUserAdded: true,
-      embedding: aiResult?.descriptor || null,
-      recordDate: new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })
-    };
+    try {
+      const generatedId = `W-${Math.floor(9000 + Math.random() * 999)}`;
+      const newCriminalRecord = {
+        id: generatedId,
+        module: 'criminal-tracking',
+        name: formData.name.trim(),
+        aliases: [formData.name.split(' ')[0]],
+        riskLevel: formData.riskLevel,
+        crimeType: formData.crimeType || 'Under Watchlist Surveillance',
+        age: formData.age ? parseInt(formData.age) : 30,
+        lastSeen: formData.lastSeen || 'CAM-03 Highway',
+        photoUrl: photoUrl,
+        photo: '👤',
+        status: 'Active Alert',
+        confidence: aiResult?.confidence ? `${aiResult.confidence}%` : '96.2%',
+        details: `${formData.ipcSection ? `[IPC: ${formData.ipcSection}] ` : ''}${formData.details || 'Registered into criminal watchlist.'}`,
+        physicalMarks: formData.physicalMarks,
+        vehiclePlate: formData.vehiclePlate,
+        policeNumber: formData.policeNumber.trim() ? `${countryCode} ${formData.policeNumber.trim()}` : '',
+        incidentDateTime: formData.incidentDateTime || new Date().toLocaleString(),
+        isUserAdded: true,
+        embedding: aiResult?.descriptor || null,
+        recordDate: new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })
+      };
 
-    const res = await addToWatchlist(newCriminalRecord);
+      const res = await addToWatchlist(newCriminalRecord);
 
-    if (res && res.success) {
+      if (res && res.success) {
+        setTimeout(() => {
+          setIsSubmitting(false);
+          navigate('/portal/criminal-tracking/criminal-tracking');
+        }, 500);
+      } else {
+        setIsSubmitting(false);
+        setFormError(res?.error || "Registration failed. Please check authorization.");
+      }
+    } catch (err) {
+      console.error("Form submit error:", err);
+      setIsSubmitting(false);
+      setFormError(err.message || "An error occurred during submission.");
+    } finally {
+      // Guarantee loading button is never stuck
       setTimeout(() => {
         setIsSubmitting(false);
-        navigate('/portal/criminal-tracking/criminal-tracking');
-      }, 600);
-    } else {
-      setIsSubmitting(false);
-      setFormError(res?.error || "Registration failed. Please ensure you are logged in.");
+      }, 2000);
     }
   };
 

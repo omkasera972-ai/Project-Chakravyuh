@@ -60,28 +60,46 @@ export const compressImageDataUrl = (dataUrl, maxDim = 400, quality = 0.85) => {
     // Skip if already small (< 80 KB)
     if (dataUrl.length < 80000) return resolve(dataUrl);
 
-    const img = new Image();
-    img.crossOrigin = 'Anonymous';
-    img.onload = () => {
-      let width = img.width;
-      let height = img.height;
-      if (width > maxDim || height > maxDim) {
-        if (width > height) {
-          height = Math.round((height * maxDim) / width);
-          width = maxDim;
-        } else {
-          width = Math.round((width * maxDim) / height);
-          height = maxDim;
+    // Fail-safe timeout: resolve with original dataUrl after 1500ms max
+    const timer = setTimeout(() => {
+      resolve(dataUrl);
+    }, 1500);
+
+    try {
+      const img = new Image();
+      img.crossOrigin = 'Anonymous';
+      img.onload = () => {
+        clearTimeout(timer);
+        try {
+          let width = img.width || maxDim;
+          let height = img.height || maxDim;
+          if (width > maxDim || height > maxDim) {
+            if (width > height) {
+              height = Math.round((height * maxDim) / width);
+              width = maxDim;
+            } else {
+              width = Math.round((width * maxDim) / height);
+              height = maxDim;
+            }
+          }
+          const canvas = document.createElement('canvas');
+          canvas.width = width;
+          canvas.height = height;
+          const ctx = canvas.getContext('2d');
+          ctx.drawImage(img, 0, 0, width, height);
+          resolve(canvas.toDataURL('image/jpeg', quality));
+        } catch (e) {
+          resolve(dataUrl);
         }
-      }
-      const canvas = document.createElement('canvas');
-      canvas.width = width;
-      canvas.height = height;
-      const ctx = canvas.getContext('2d');
-      ctx.drawImage(img, 0, 0, width, height);
-      resolve(canvas.toDataURL('image/jpeg', quality));
-    };
-    img.onerror = () => resolve(dataUrl);
-    img.src = dataUrl;
+      };
+      img.onerror = () => {
+        clearTimeout(timer);
+        resolve(dataUrl);
+      };
+      img.src = dataUrl;
+    } catch (err) {
+      clearTimeout(timer);
+      resolve(dataUrl);
+    }
   });
 };
