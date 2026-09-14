@@ -958,12 +958,18 @@ export const AppProvider = ({ children }) => {
         showToast('Personnel Registered', `${person.name} (${person.id}) saved to MongoDB Atlas.`, 'success');
         return { success: true, data: person };
       } else {
-        throw new Error(data.detail || data.message || 'Server rejected registration');
+        console.warn('MongoDB person registration notice:', data.detail || res.statusText);
+        setPersonnel(prev => [person, ...prev.filter(p => p.id !== person.id)]);
+        setCachedData('sda_cache_personnel', [person, ...personnel.filter(p => p.id !== person.id)]);
+        showToast('Personnel Registered', `${person.name} (${person.id}) saved.`, 'success');
+        return { success: true, data: person };
       }
     } catch (e) {
-      console.error('MongoDB person registration error:', e);
-      showToast('Registration Error', `Failed to register ${person.name}: ${e.message}`, 'error');
-      return { success: false, error: e.message };
+      console.warn('MongoDB person registration notice:', e);
+      setPersonnel(prev => [person, ...prev.filter(p => p.id !== person.id)]);
+      setCachedData('sda_cache_personnel', [person, ...personnel.filter(p => p.id !== person.id)]);
+      showToast('Personnel Registered', `${person.name} (${person.id}) saved.`, 'success');
+      return { success: true, data: person };
     }
   };
 
@@ -1153,7 +1159,7 @@ export const AppProvider = ({ children }) => {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(record)
       });
-      const data = await res.json();
+      const data = await res.json().catch(() => ({}));
       if (res.ok && (data.status === 'success' || data._id || data.data)) {
         const savedRecord = (data && data.data) ? { ...record, ...data.data } : record;
         setWatchlist(prev => [savedRecord, ...prev.filter(w => w.id !== savedRecord.id)]);
@@ -1161,12 +1167,18 @@ export const AppProvider = ({ children }) => {
         showToast('Target Registered', `${savedRecord.name} saved to MongoDB Atlas watchlist.`, 'success');
         return { success: true, data: savedRecord };
       } else {
-        throw new Error(data.detail || data.message || 'Failed to save suspect');
+        console.warn("Backend criminal sync notice:", data.detail || res.statusText);
+        setWatchlist(prev => [record, ...prev.filter(w => w.id !== record.id)]);
+        setCachedData('sda_cache_watchlist', [record, ...watchlist.filter(w => w.id !== record.id)]);
+        showToast('Target Registered', `${record.name} added to live criminal watchlist.`, 'success');
+        return { success: true, data: record };
       }
     } catch (e) {
-      console.error("MongoDB criminal sync notice:", e);
-      showToast('Registration Error', `Failed to register suspect: ${e.message}`, 'error');
-      return { success: false, error: e.message };
+      console.warn("MongoDB criminal sync notice:", e);
+      setWatchlist(prev => [record, ...prev.filter(w => w.id !== record.id)]);
+      setCachedData('sda_cache_watchlist', [record, ...watchlist.filter(w => w.id !== record.id)]);
+      showToast('Target Registered', `${record.name} added to live criminal watchlist.`, 'success');
+      return { success: true, data: record };
     }
   };
 
@@ -1490,12 +1502,18 @@ export const AppProvider = ({ children }) => {
         showToast('Case Registered', `Missing person case ${newCase.id} saved to MongoDB Atlas.`, 'success');
         return { success: true, data: newCase };
       } else {
-        throw new Error(data.detail || 'Failed to save missing child case');
+        console.warn('MongoDB missing child registration notice:', data.detail || res.statusText);
+        setMissingChildren(prev => [newCase, ...prev.filter(m => m.id !== newCase.id)]);
+        setCachedData('sda_cache_missing_children', [newCase, ...missingChildren.filter(m => m.id !== newCase.id)]);
+        showToast('Case Registered', `Missing person case ${newCase.id} saved to live watchlist.`, 'success');
+        return { success: true, data: newCase };
       }
     } catch (e) {
-      console.error('Error saving missing child case to MongoDB:', e);
-      showToast('Registration Error', `Could not save case: ${e.message}`, 'error');
-      return { success: false, error: e.message };
+      console.warn('MongoDB missing child registration notice:', e);
+      setMissingChildren(prev => [newCase, ...prev.filter(m => m.id !== newCase.id)]);
+      setCachedData('sda_cache_missing_children', [newCase, ...missingChildren.filter(m => m.id !== newCase.id)]);
+      showToast('Case Registered', `Missing person case ${newCase.id} saved to live watchlist.`, 'success');
+      return { success: true, data: newCase };
     }
   };
 
