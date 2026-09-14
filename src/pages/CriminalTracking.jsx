@@ -790,6 +790,46 @@ export const CriminalTracking = () => {
             confidence: `${((1 - parseFloat(primaryMatch.distance || 0.4)) * 100).toFixed(1)}%`
           });
 
+          // Dispatch Backend Email Alert to Registered Officers via authFetch
+          const dispatchBackendEmailAlert = async () => {
+            try {
+              const res = await authFetch(`${getApiBaseUrl()}/api/criminal/dispatch-alert`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                  criminal_id: primaryMatch.target.id,
+                  criminal_name: primaryMatch.target.name,
+                  photo_url: primaryMatch.target.photoUrl || primaryMatch.target.photo,
+                  risk_level: primaryMatch.target.riskLevel || 'Critical Risk',
+                  crime_details: primaryMatch.target.details || primaryMatch.target.crimeType || 'Under Active Watchlist Surveillance',
+                  ipc_charges: primaryMatch.target.charges || primaryMatch.target.ipcCharges || 'IPC 302 / 395',
+                  age: primaryMatch.target.age || '32',
+                  cam_id: scanTab === 'cctv' ? selectedCctvId : 'CAM-2000',
+                  location: scanTab === 'cctv' ? selectedCctvLocation : 'NH47, Nemawar, Dewas, MP, India',
+                  lat: userLocation?.lat || 22.504429,
+                  lng: userLocation?.lng || 76.979752
+                })
+              });
+              if (res.ok) {
+                const data = await res.json();
+                if (data.status === 'success') {
+                  showToast('Alert Email Sent', 'Alert email sent successfully to registered officers.', 'success');
+                } else if (data.status === 'suppressed') {
+                  console.log('[ALERT DUP] Duplicate alert suppressed by backend cooldown.');
+                } else {
+                  showToast('Alert Notice', data.message || 'Alert processed.', 'info');
+                }
+              } else {
+                const errData = await res.json().catch(() => ({}));
+                showToast('Alert Email Warning', errData.detail || errData.message || 'Could not dispatch alert email.', 'error');
+              }
+            } catch (err) {
+              console.error('Error dispatching backend alert email:', err);
+              showToast('Alert Email Error', 'Network error sending alert email.', 'error');
+            }
+          };
+          dispatchBackendEmailAlert();
+
           // Trigger On-Screen Centered Alert Modal if toggle is ON
           if (isScreenAlertEnabledRef.current) {
             setScreenDetectionAlert({
@@ -798,12 +838,6 @@ export const CriminalTracking = () => {
               riskLevel: primaryMatch.target.riskLevel || 'Critical Risk',
               crimeDetails: primaryMatch.target.details || primaryMatch.target.crimeType || 'Under Active Watchlist Surveillance',
               age: primaryMatch.target.age || '32',
-              ipcCharges: primaryMatch.target.charges || primaryMatch.target.ipcCharges || primaryMatch.target.crimeType || 'IPC 302 / 395 - Armed Robbery & Homicide',
-              photoUrl: primaryMatch.target.photoUrl || scanImage || 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=300&auto=format&fit=crop&q=80',
-              cameraNode: scanTab === 'cctv' ? selectedCctvLocation : 'Live Webcam - Primary Station',
-              cameraCode: scanTab === 'cctv' ? selectedCctvId : 'CAM-01',
-              confidence: `${((1 - parseFloat(primaryMatch.distance || 0.4)) * 100).toFixed(1)}%`,
-              time: new Date().toLocaleTimeString(),
               lat: userLocation?.lat || 22.7240,
               lng: userLocation?.lng || 75.8650,
               target: primaryMatch.target

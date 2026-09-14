@@ -340,6 +340,28 @@ export const ModuleLogin = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [errorMessage, setErrorMessage] = useState('');
 
+  const [suggestedAccounts, setSuggestedAccounts] = useState([]);
+
+  // Fetch suggested accounts for active module
+  useEffect(() => {
+    let isMounted = true;
+    const fetchSuggested = async () => {
+      try {
+        const res = await fetch(`${getApiBaseUrl()}/api/auth/suggested-accounts/${module.id}`);
+        if (res.ok) {
+          const data = await res.json();
+          if (isMounted && data.status === 'success' && Array.isArray(data.accounts)) {
+            setSuggestedAccounts(data.accounts);
+          }
+        }
+      } catch (err) {
+        console.warn('Suggested accounts fetch notice:', err);
+      }
+    };
+    fetchSuggested();
+    return () => { isMounted = false; };
+  }, [module.id]);
+
   // Reset form state on tab or module change
   useEffect(() => {
     setErrorMessage('');
@@ -601,12 +623,40 @@ export const ModuleLogin = () => {
             {activeTab === 'login' ? (
               <form onSubmit={handleLogin} className="space-y-5">
                 
+                {/* Interactive Suggested Accounts Selector */}
+                {suggestedAccounts && suggestedAccounts.length > 0 && (
+                  <div className="mb-2 p-3 rounded-2xl bg-blue-50/60 border border-blue-100">
+                    <p className="text-[11px] font-semibold text-blue-700 uppercase tracking-wider mb-2 flex items-center gap-1.5">
+                      <span>💡 Suggested Registered Accounts:</span>
+                    </p>
+                    <div className="flex flex-wrap gap-1.5">
+                      {suggestedAccounts.map((acc, idx) => (
+                        <button
+                          key={idx}
+                          type="button"
+                          onClick={() => setUsername(acc.username)}
+                          className={`px-3 py-1.5 rounded-xl text-xs font-medium transition-all border cursor-pointer ${
+                            username === acc.username
+                              ? 'bg-blue-600 text-white border-blue-600 shadow-sm'
+                              : 'bg-white text-slate-700 border-slate-200 hover:border-blue-300 hover:bg-blue-50'
+                          }`}
+                        >
+                          👤 {acc.username}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
                 {/* Username Input */}
                 <div>
                   <div className="relative">
                     <User className="w-4 h-4 text-slate-400 absolute left-4 top-1/2 -translate-y-1/2 pointer-events-none" />
                     <input
                       type="text"
+                      name="username"
+                      id="username"
+                      autoComplete="username"
                       value={username}
                       onChange={(e) => setUsername(e.target.value)}
                       placeholder="Username"
@@ -622,6 +672,9 @@ export const ModuleLogin = () => {
                     <Lock className="w-4 h-4 text-slate-400 absolute left-4 top-1/2 -translate-y-1/2 pointer-events-none" />
                     <input
                       type={showPassword ? 'text' : 'password'}
+                      name="password"
+                      id="password"
+                      autoComplete="current-password"
                       value={password}
                       onChange={(e) => setPassword(e.target.value)}
                       placeholder="Password"
@@ -637,6 +690,7 @@ export const ModuleLogin = () => {
                     </button>
                   </div>
                 </div>
+
 
                 {/* Login Button */}
                 <button

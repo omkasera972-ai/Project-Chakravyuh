@@ -46,6 +46,9 @@ export const Login = () => {
               </div>
               <input
                 type="text"
+                name="username"
+                id="username"
+                autoComplete="username"
                 value={username}
                 onChange={(e) => setUsername(e.target.value)}
                 placeholder="admin"
@@ -64,6 +67,9 @@ export const Login = () => {
               </div>
               <input
                 type="password"
+                name="password"
+                id="password"
+                autoComplete="current-password"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 placeholder="••••••••"

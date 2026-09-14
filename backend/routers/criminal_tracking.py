@@ -358,21 +358,51 @@ async def send_test_officer_email(
 
 
 # 11. CAMERA ↔ POLICE STATION DISTANCE & ALERT ROUTING ENDPOINT
+import time
+
+RECENT_ALERT_DISPATCHES: Dict[str, float] = {}
+ALERT_COOLDOWN_SECONDS = 60.0
+
+def check_and_register_duplicate(criminal_id: str, cam_id: str, force: bool = False) -> bool:
+    """
+    Duplicate alert prevention: Suppresses repeated emails for same criminal + camera within 60s window.
+    """
+    if force:
+        return False
+    now = time.time()
+    key = f"{(criminal_id or 'UNKNOWN').strip().lower()}:{(cam_id or 'UNKNOWN').strip().lower()}"
+    last_ts = RECENT_ALERT_DISPATCHES.get(key, 0.0)
+    if now - last_ts < ALERT_COOLDOWN_SECONDS:
+        return True
+    RECENT_ALERT_DISPATCHES[key] = now
+    return False
+
 @router.post("/test-distance-routing")
 @router.post("/test_distance_routing")
+@router.post("/dispatch-alert")
+@router.post("/dispatch_alert")
 async def test_camera_police_distance_routing(payload: Dict[str, Any] = Body(...), admin_id: str = Depends(get_authenticated_admin_id)):
     """
     Calculates distance between Camera coordinates (Criminal_traking.camera_network)
     and Police Station coordinates (Criminal_traking.officer_information).
     Identifies nearest police station, officer_email, and dispatches full alert.
+    Includes 60s duplicate alert suppression per suspect+camera node.
     """
     cam_id = payload.get("camera_id") or payload.get("cam_id") or "CAM-NEMAWAR-01"
-    criminal_name = payload.get("criminal_name") or payload.get("name") or "Ramesh Kumar"
-    criminal_id = payload.get("criminal_id") or payload.get("id") or "CRIM-8841"
+    criminal_name = payload.get("criminal_name") or payload.get("name") or payload.get("targetName") or "Ramesh Kumar"
+    criminal_id = payload.get("criminal_id") or payload.get("id") or payload.get("targetId") or "CRIM-8841"
+    force_send = payload.get("force") or payload.get("is_test") or False
+
+    # Duplicate Prevention Check
+    if check_and_register_duplicate(criminal_id, cam_id, force=force_send):
+        return {
+            "status": "suppressed",
+            "message": f"Duplicate alert suppressed for suspect '{criminal_name}' ({criminal_id}) at camera {cam_id} within 60s cooldown.",
+            "cooldown_remaining_sec": int(ALERT_COOLDOWN_SECONDS - (time.time() - RECENT_ALERT_DISPATCHES.get(f"{criminal_id.lower()}:{cam_id.lower()}", 0.0)))
+        }
 
     # 1. Lookup Camera in Criminal_traking.camera_network
     cam_doc = await db_criminal["camera_network"].find_one({
-        "admin_id": admin_id,
         "$or": [
             {"camera_id": cam_id},
             {"id": cam_id},
@@ -399,9 +429,10 @@ async def test_camera_police_distance_routing(payload: Dict[str, Any] = Body(...
     alert_payload = {
         "name": criminal_name,
         "id": criminal_id,
-        "risk_level": payload.get("risk_level") or "Critical Risk",
-        "crime_details": payload.get("crime_details") or "Under Active Watchlist Surveillance",
-        "ipc_charges": payload.get("ipc_charges") or "IPC 302 / 395 - Armed Robbery & Homicide",
+        "photo_url": payload.get("photo_url") or payload.get("photoUrl") or payload.get("photo"),
+        "risk_level": payload.get("risk_level") or payload.get("riskLevel") or "Critical Risk",
+        "crime_details": payload.get("crime_details") or payload.get("crimeType") or payload.get("description") or "Under Active Watchlist Surveillance",
+        "ipc_charges": payload.get("ipc_charges") or payload.get("charges") or "IPC 302 / 395 - Armed Robbery & Homicide",
         "age": payload.get("age") or "34"
     }
     location_payload = {
@@ -414,7 +445,8 @@ async def test_camera_police_distance_routing(payload: Dict[str, Any] = Body(...
     dispatch_res = await send_criminal_alert(alert_payload, location_payload, admin_id=admin_id)
 
     return {
-        "status": "success",
+        "status": dispatch_res.get("status", "success"),
+        "message": dispatch_res.get("message", "Alert processing completed"),
         "camera_detected": {
             "camera_id": cam_id,
             "camera_name": cam_name,
@@ -427,6 +459,7 @@ async def test_camera_police_distance_routing(payload: Dict[str, Any] = Body(...
         "dispatched_officers": dispatch_res.get("dispatched_officers") or dispatch_res.get("target_officers"),
         "email_dispatch_result": dispatch_res
     }
+
 
 
 # ---------------------------------------------------------
