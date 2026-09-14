@@ -1131,6 +1131,7 @@ export const AppProvider = ({ children }) => {
   // ---------------------------------------------------------
   const addToWatchlist = async (item) => {
     const record = {
+      ...item,
       id: item.id || `W-${Math.floor(9000 + Math.random() * 999)}`,
       module: item.module || activeModule || 'criminal-tracking',
       name: item.name,
@@ -1142,7 +1143,8 @@ export const AppProvider = ({ children }) => {
       confidence: item.confidence || '98.5%',
       photoUrl: item.photoUrl || item.photo || null,
       age: item.age || 32,
-      details: item.details || item.crimeType || 'Registered into criminal watchlist.'
+      details: item.details || item.crimeType || 'Registered into criminal watchlist.',
+      embedding: item.embedding || null
     };
 
     try {
@@ -1152,12 +1154,14 @@ export const AppProvider = ({ children }) => {
         body: JSON.stringify(record)
       });
       const data = await res.json();
-      if (res.ok && (data.status === 'success' || data._id)) {
-        setWatchlist(prev => [record, ...prev.filter(w => w.id !== record.id)]);
-        showToast('Target Registered', `${record.name} saved to MongoDB Atlas watchlist.`, 'success');
-        return { success: true, data: record };
+      if (res.ok && (data.status === 'success' || data._id || data.data)) {
+        const savedRecord = (data && data.data) ? { ...record, ...data.data } : record;
+        setWatchlist(prev => [savedRecord, ...prev.filter(w => w.id !== savedRecord.id)]);
+        setCachedData('sda_cache_watchlist', [savedRecord, ...watchlist.filter(w => w.id !== savedRecord.id)]);
+        showToast('Target Registered', `${savedRecord.name} saved to MongoDB Atlas watchlist.`, 'success');
+        return { success: true, data: savedRecord };
       } else {
-        throw new Error(data.detail || 'Failed to save suspect');
+        throw new Error(data.detail || data.message || 'Failed to save suspect');
       }
     } catch (e) {
       console.error("MongoDB criminal sync notice:", e);

@@ -303,6 +303,7 @@ export const AddCriminal = () => {
       }, 600);
     } else {
       setIsSubmitting(false);
+      setFormError(res?.error || "Registration failed. Please ensure you are logged in.");
     }
   };
 

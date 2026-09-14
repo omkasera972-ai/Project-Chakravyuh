@@ -424,25 +424,24 @@ export const CriminalTracking = () => {
     setIsRegistering(true);
 
     try {
-      // Require exactly 1 face for watchlist registration
-      const result = await detectAndExtractFaceDescriptor(newPhotoPreview);
-      if (!result.hasFace || result.faceCount === 0) {
-        setModalFormError("No Face Detected — Upload a Clear Face Photo");
-        return;
-      }
-      if (result.isMultiple || result.faceCount > 1) {
-        setModalFormError("Multiple Faces Detected — Upload a Photo Containing One Person");
-        return;
+      // Soft face descriptor extraction (Biometric enhancement)
+      let descriptor = null;
+      try {
+        const result = await detectAndExtractFaceDescriptor(newPhotoPreview);
+        if (result && result.hasFace && result.descriptor) {
+          descriptor = result.descriptor;
+        }
+      } catch (faceErr) {
+        console.warn("Face descriptor extraction notice:", faceErr);
       }
 
       const newTargetId = `W-USER-${Math.floor(1000 + Math.random() * 9000)}`;
-      const descriptor = result.descriptor;
 
       if (descriptor) {
         referenceEmbeddingsRef.current[newTargetId] = descriptor;
       }
 
-      addToWatchlist({
+      const res = await addToWatchlist({
         ...newFormData,
         crimeType: newFormData.crimeType.trim() || 'Criminal Offense',
         lastSeen: newFormData.lastSeen.trim() || 'CAM-03 Highway',
@@ -453,17 +452,21 @@ export const CriminalTracking = () => {
         embedding: descriptor
       });
 
-      setIsAddingNew(false);
-      setNewFormData({
-        name: '',
-        riskLevel: 'Criminal',
-        crimeType: 'Criminal Offense',
-        lastSeen: 'CAM-03 Highway',
-        age: 32,
-        details: '',
-        photoUrl: ''
-      });
-      setNewPhotoPreview(null);
+      if (res && res.success) {
+        setIsAddingNew(false);
+        setNewFormData({
+          name: '',
+          riskLevel: 'Criminal',
+          crimeType: 'Criminal Offense',
+          lastSeen: 'CAM-03 Highway',
+          age: 32,
+          details: '',
+          photoUrl: ''
+        });
+        setNewPhotoPreview(null);
+      } else {
+        setModalFormError(res?.error || "Registration failed. Please ensure you are logged in.");
+      }
     } catch (err) {
       console.error("Registration error:", err);
       setModalFormError("Registration failed: " + err.message);
