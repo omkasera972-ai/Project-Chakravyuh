@@ -867,18 +867,18 @@ export const CriminalTracking = () => {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
-              targetName: primaryMatch.target.name,
-              targetId: primaryMatch.target.id,
-              crimeType: primaryMatch.target.details || primaryMatch.target.crimeType,
-              risk_level: primaryMatch.target.riskLevel || 'Critical Risk',
-              age: primaryMatch.target.age || '32',
-              ipc_charges: primaryMatch.target.charges || primaryMatch.target.ipcCharges || primaryMatch.target.crimeType,
-              photo_url: primaryMatch.target.photoUrl,
-              cameraNode: scanTab === 'cctv' ? selectedCctvLocation : 'Live Webcam - Primary Station',
+              targetName: primaryMatch.target?.name || 'Unknown Suspect',
+              targetId: primaryMatch.target?.id || 'CRIM-8841',
+              crimeType: primaryMatch.target?.details || primaryMatch.target?.crimeType || 'Under Active Watchlist Surveillance',
+              risk_level: primaryMatch.target?.riskLevel || 'Critical Risk',
+              age: primaryMatch.target?.age || '32',
+              ipc_charges: primaryMatch.target?.charges || primaryMatch.target?.ipcCharges || 'IPC 302 / 395',
+              photo_url: primaryMatch.target?.photoUrl || primaryMatch.target?.photo || '',
+              cameraNode: scanTab === 'cctv' ? (selectedCctvId || 'WEB-Cam01') : 'WEB-Cam01',
               confidence: `${((1 - parseFloat(primaryMatch.distance || 0.4)) * 100).toFixed(1)}%`,
-              incidentDateTime: primaryMatch.target.incidentDateTime || new Date().toLocaleString(),
-              lat: userLocation?.lat || 22.7240,
-              lng: userLocation?.lng || 75.8650
+              incidentDateTime: primaryMatch.target?.incidentDateTime || new Date().toLocaleString(),
+              lat: userLocation?.lat || 22.504429,
+              lng: userLocation?.lng || 76.979752
             })
           }).then(r => r.json()).then(res => {
             showToast(

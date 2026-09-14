@@ -352,7 +352,7 @@ class PoliceDispatchPayload(BaseModel):
     lng: Optional[float] = None
 
 class AutoDispatchPayload(BaseModel):
-    targetName: str
+    targetName: Optional[str] = "Unknown Suspect"
     targetId: Optional[str] = "W-TARGET"
     crimeType: Optional[str] = "Under Watchlist Surveillance"
     cameraNode: Optional[str] = "Live Webcam - Primary Station"
@@ -364,6 +364,7 @@ class AutoDispatchPayload(BaseModel):
     risk_level: Optional[str] = None
     age: Optional[str] = None
     ipc_charges: Optional[str] = None
+    force: Optional[bool] = False
 
 @router.post("/alerts/dispatch-auto")
 async def auto_dispatch_criminal_alert(payload: AutoDispatchPayload, background_tasks: BackgroundTasks, admin_id: str = Depends(get_authenticated_admin_id)):

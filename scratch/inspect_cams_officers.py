@@ -5,7 +5,7 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
-MONGO_URI = os.getenv("MONGO_URI", "mongodb+srv://admin:admin123@cluster0.p7x7c.mongodb.net/?retryWrites=true&w=majority")
+MONGO_URI = os.getenv("MONGO_URI") or os.getenv("MONGODB_URL")
 
 async def inspect():
     client = AsyncIOMotorClient(MONGO_URI)
