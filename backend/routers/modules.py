@@ -360,6 +360,10 @@ class AutoDispatchPayload(BaseModel):
     incidentDateTime: Optional[str] = None
     lat: Optional[float] = None
     lng: Optional[float] = None
+    photo_url: Optional[str] = None
+    risk_level: Optional[str] = None
+    age: Optional[str] = None
+    ipc_charges: Optional[str] = None
 
 @router.post("/alerts/dispatch-auto")
 async def auto_dispatch_criminal_alert(payload: AutoDispatchPayload, background_tasks: BackgroundTasks, admin_id: str = Depends(get_authenticated_admin_id)):
@@ -371,7 +375,11 @@ async def auto_dispatch_criminal_alert(payload: AutoDispatchPayload, background_
     criminal_data = {
         "name": payload.targetName,
         "id": payload.targetId,
-        "crimeType": payload.crimeType
+        "crimeType": payload.crimeType,
+        "photo_url": payload.photo_url,
+        "risk_level": payload.risk_level,
+        "age": payload.age,
+        "ipc_charges": payload.ipc_charges
     }
     lat_val = payload.lat if payload.lat is not None else 22.7240
     lng_val = payload.lng if payload.lng is not None else 75.8650

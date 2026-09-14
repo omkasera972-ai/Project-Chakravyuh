@@ -138,7 +138,7 @@ const detectAndExtractFaceDescriptor = async (imageDataUrl) => {
 };
 
 export const CriminalTracking = () => {
-  const { watchlist, addToWatchlist, removeFromWatchlist, clearCustomWatchlist, resetWatchlist, addAlert, addCriminalDetection, showToast, alerts = [], cameras = [], dispatchPhoneNumbers = [], userLocation } = useApp();
+  const { watchlist, addToWatchlist, removeFromWatchlist, clearCustomWatchlist, resetWatchlist, addAlert, addCriminalDetection, showToast, alerts = [], cameras = [], dispatchPhoneNumbers = [], userLocation, authFetch } = useApp();
   const navigate = useNavigate();
 
   const [isModelsReady, setIsModelsReady] = useState(modelsLoaded);
@@ -843,12 +843,18 @@ export const CriminalTracking = () => {
 
           // Trigger On-Screen Centered Alert Modal if toggle is ON
           if (isScreenAlertEnabledRef.current) {
+            const suspectPhoto = primaryMatch.target.photoUrl || primaryMatch.target.photo || 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150&auto=format&fit=crop&q=80';
             setScreenDetectionAlert({
               name: primaryMatch.target.name,
               id: primaryMatch.target.id,
               riskLevel: primaryMatch.target.riskLevel || 'Critical Risk',
               crimeDetails: primaryMatch.target.details || primaryMatch.target.crimeType || 'Under Active Watchlist Surveillance',
+              ipcCharges: primaryMatch.target.charges || primaryMatch.target.ipcCharges || primaryMatch.target.ipcSection || primaryMatch.target.details || 'IPC 302 / 395',
               age: primaryMatch.target.age || '32',
+              photoUrl: suspectPhoto,
+              confidence: `${((1 - parseFloat(primaryMatch.distance || 0.4)) * 100).toFixed(1)}%`,
+              cameraNode: scanTab === 'cctv' ? (selectedCctvId || 'CAM-01') : 'CAM-01 (Live Webcam)',
+              time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' }),
               lat: userLocation?.lat || 22.7240,
               lng: userLocation?.lng || 75.8650,
               target: primaryMatch.target
@@ -856,7 +862,7 @@ export const CriminalTracking = () => {
           }
 
           // 📲 AUTOMATIC SILENT SERVER-SIDE BACKGROUND DISPATCH VIA BACKEND API (NO BROWSER POPUPS)
-          fetch(`${getApiBaseUrl()}/api/alerts/dispatch-auto`, {
+          authFetch(`${getApiBaseUrl()}/api/alerts/dispatch-auto`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
@@ -1793,7 +1799,7 @@ export const CriminalTracking = () => {
                   <div className="flex flex-wrap items-center justify-between gap-2.5 pt-1">
                     <button
                       onClick={() => {
-                        fetch(`${getApiBaseUrl()}/api/alerts/dispatch-auto`, {
+                        authFetch(`${getApiBaseUrl()}/api/alerts/dispatch-auto`, {
                           method: 'POST',
                           headers: { 'Content-Type': 'application/json' },
                           body: JSON.stringify({
@@ -2332,8 +2338,8 @@ export const CriminalTracking = () => {
             {/* Suspect Photograph & Key Badge Row */}
             <div className="flex flex-col sm:flex-row items-center gap-5 bg-slate-950/90 p-4 sm:p-5 rounded-2xl border border-red-900/70 shadow-inner">
               <img
-                src={screenDetectionAlert.photoUrl}
-                alt={screenDetectionAlert.name}
+                src={screenDetectionAlert.photoUrl || screenDetectionAlert.target?.photoUrl || screenDetectionAlert.target?.photo || 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150&auto=format&fit=crop&q=80'}
+                alt={screenDetectionAlert.name || 'Suspect'}
                 onError={(e) => {
                   e.target.onerror = null;
                   e.target.src = 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150&auto=format&fit=crop&q=80';
@@ -2414,7 +2420,7 @@ export const CriminalTracking = () => {
               <button
                 type="button"
                 onClick={() => {
-                  fetch(`${getApiBaseUrl()}/api/alerts/dispatch-auto`, {
+                  authFetch(`${getApiBaseUrl()}/api/alerts/dispatch-auto`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({

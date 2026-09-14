@@ -12,7 +12,7 @@ import {
   crimeOverviewData,
   incidentsOverTimeData,
 } from '../data/mockData';
-import { formatISTDate, formatISTTime, safeSetLocalStorage, getApiBaseUrl } from '../utils/dateUtils';
+import { formatISTDate, formatISTTime, safeSetLocalStorage, getApiBaseUrl, compressImageDataUrl } from '../utils/dateUtils';
 
 const AppContext = createContext();
 
@@ -1897,7 +1897,8 @@ export const AppProvider = ({ children }) => {
         pendingCameraLocation,
         setPendingCameraLocation,
         fetchCameras,
-        updateCamera
+        updateCamera,
+        authFetch
       }}
     >
       {children}

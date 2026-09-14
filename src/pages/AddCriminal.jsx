@@ -131,12 +131,16 @@ export const AddCriminal = () => {
       });
       if (videoRef.current) {
         videoRef.current.srcObject = stream;
-        await videoRef.current.play();
+        await videoRef.current.play().catch(e => {
+          if (e.name !== 'AbortError') console.error("Camera play error:", e);
+        });
         setCameraActive(true);
       }
     } catch (err) {
-      console.error("Camera access error:", err);
-      showToast("Camera Error", "Could not access webcam device.", "danger");
+      if (err.name !== 'AbortError') {
+        console.error("Camera access error:", err);
+        showToast("Camera Error", "Could not access webcam device.", "danger");
+      }
       setCameraActive(false);
     }
   };

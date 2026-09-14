@@ -540,13 +540,13 @@ async def send_criminal_alert(
 
     # Top Suspect Photo HTML Element
     if img_bytes:
-        photo_html = '<img src="cid:criminal_photo" alt="WANTED SUSPECT PHOTO" style="width: 220px; height: 220px; object-fit: cover; border-radius: 16px; border: 4px solid #ef4444; box-shadow: 0 10px 25px rgba(239, 68, 68, 0.5); display: block; margin: 0 auto 16px auto;" />'
+        photo_html = '<img src="cid:criminal_photo" alt="WANTED SUSPECT PHOTO" style="width: 170px; height: 170px; object-fit: cover; border-radius: 50%; border: 4px solid #ef4444; box-shadow: 0 8px 25px rgba(239, 68, 68, 0.5); display: block; margin: 0 auto 16px auto;" />'
     elif photo_url and (photo_url.startswith("http://") or photo_url.startswith("https://")):
-        photo_html = f'<img src="{photo_url}" alt="WANTED SUSPECT PHOTO" style="width: 220px; height: 220px; object-fit: cover; border-radius: 16px; border: 4px solid #ef4444; box-shadow: 0 10px 25px rgba(239, 68, 68, 0.5); display: block; margin: 0 auto 16px auto;" />'
+        photo_html = f'<img src="{photo_url}" alt="WANTED SUSPECT PHOTO" style="width: 170px; height: 170px; object-fit: cover; border-radius: 50%; border: 4px solid #ef4444; box-shadow: 0 8px 25px rgba(239, 68, 68, 0.5); display: block; margin: 0 auto 16px auto;" />'
     else:
-        photo_html = '<div style="display: block; width: 150px; height: 150px; line-height: 150px; border-radius: 50%; background: #334155; color: #ef4444; font-size: 64px; font-weight: bold; border: 4px solid #ef4444; margin: 0 auto 16px auto; text-align: center;">👤</div>'
+        photo_html = '<div style="display: block; width: 160px; height: 160px; line-height: 160px; border-radius: 50%; background: #1e293b; color: #3b82f6; font-size: 72px; font-weight: bold; border: 4px solid #ef4444; margin: 0 auto 16px auto; text-align: center;">👤</div>'
 
-    # STEP 4: Camera & Location Resolution
+    # STEP 4: Camera & Location Resolution from Camera Network DB
     requested_cam = location_data.get("cam_id") or location_data.get("camera_id") or location_data.get("cameraNode") or location_data.get("cameraName") or ""
     
     camera_net_id = None
@@ -557,7 +557,7 @@ async def send_criminal_alert(
     if db_criminal is not None:
         try:
             cam_doc = None
-            if requested_cam and requested_cam not in ["CAM-01 Live Webcam", "Webcam", "Live Webcam"]:
+            if requested_cam:
                 cam_q = {
                     "$or": [
                         {"camera_id": requested_cam},
@@ -570,28 +570,30 @@ async def send_criminal_alert(
                     cam_q["admin_id"] = admin_id
                 cam_doc = await db_criminal["camera_network"].find_one(cam_q)
             
+            # Fallback to any registered camera in camera_network collection if specific camera ID not found
             if not cam_doc:
                 filter_q = {"admin_id": admin_id} if admin_id else {}
                 cursor = db_criminal["camera_network"].find(filter_q)
                 all_cams = await cursor.to_list(length=10)
+                if not all_cams and admin_id:
+                    cursor = db_criminal["camera_network"].find({})
+                    all_cams = await cursor.to_list(length=10)
                 if all_cams:
                     cam_doc = all_cams[0]
 
             if cam_doc:
-                camera_net_id = cam_doc.get("camera_id") or cam_doc.get("id") or cam_doc.get("camera_name")
+                camera_net_id = cam_doc.get("camera_id") or cam_doc.get("id") or cam_doc.get("camera_name") or "CAM-NODE-01"
                 camera_net_location = cam_doc.get("location") or cam_doc.get("address") or cam_doc.get("camera_name")
                 camera_net_lat = cam_doc.get("latitude") if cam_doc.get("latitude") is not None else cam_doc.get("lat")
                 camera_net_lng = cam_doc.get("longitude") if cam_doc.get("longitude") is not None else cam_doc.get("lng")
         except Exception as e:
             logger.warning(f"[CAMERA NETWORK DB LOOKUP NOTICE] {e}")
 
-    cam_id = camera_net_id or (requested_cam if requested_cam and requested_cam not in ["CAM-01 Live Webcam", "Webcam"] else "CAM-2000")
-    cam_location_name = camera_net_location or location_data.get("camera_location") or location_data.get("location") or "NH47, Nemawar, Dewas, MP, India"
+    cam_id = camera_net_id or (requested_cam if requested_cam and "webcam" not in requested_cam.lower() else "CAM-NEMAWAR-01")
+    cam_location_name = camera_net_location or location_data.get("camera_location") or location_data.get("location") or "Nemawar Bypass Camera Node, MP, India"
     
-    lat = camera_net_lat if camera_net_lat is not None else float(location_data.get("lat") or 22.504429)
-    lng = camera_net_lng if camera_net_lng is not None else float(location_data.get("lng") or 76.979752)
-    lat = float(lat)
-    lng = float(lng)
+    lat = float(camera_net_lat if camera_net_lat is not None else (location_data.get("lat") or 22.4632))
+    lng = float(camera_net_lng if camera_net_lng is not None else (location_data.get("lng") or 76.9381))
 
     # STEP 5: Officer Routing (Camera -> Police Station -> Registered Officers)
     logger.info(f"[OFFICER LOOKUP] Resolving camera coordinates ({lat}, {lng}) to assigned police station...")
