@@ -352,19 +352,19 @@ class PoliceDispatchPayload(BaseModel):
     lng: Optional[float] = None
 
 class AutoDispatchPayload(BaseModel):
-    targetName: Optional[str] = "Unknown Suspect"
-    targetId: Optional[str] = "W-TARGET"
-    crimeType: Optional[str] = "Under Watchlist Surveillance"
-    cameraNode: Optional[str] = "Live Webcam - Primary Station"
-    confidence: Optional[str] = "96.8%"
-    incidentDateTime: Optional[str] = None
-    lat: Optional[float] = None
-    lng: Optional[float] = None
-    photo_url: Optional[str] = None
-    risk_level: Optional[str] = None
-    age: Optional[str] = None
-    ipc_charges: Optional[str] = None
-    force: Optional[bool] = False
+    targetName: Optional[Any] = "Unknown Suspect"
+    targetId: Optional[Any] = "W-TARGET"
+    crimeType: Optional[Any] = "Under Watchlist Surveillance"
+    cameraNode: Optional[Any] = "Live Webcam - Primary Station"
+    confidence: Optional[Any] = "96.8%"
+    incidentDateTime: Optional[Any] = None
+    lat: Optional[Any] = None
+    lng: Optional[Any] = None
+    photo_url: Optional[Any] = None
+    risk_level: Optional[Any] = None
+    age: Optional[Any] = None
+    ipc_charges: Optional[Any] = None
+    force: Optional[Any] = False
 
 @router.post("/alerts/dispatch-auto")
 async def auto_dispatch_criminal_alert(payload: AutoDispatchPayload, background_tasks: BackgroundTasks, admin_id: str = Depends(get_authenticated_admin_id)):
@@ -373,19 +373,27 @@ async def auto_dispatch_criminal_alert(payload: AutoDispatchPayload, background_
     Fetches active contacts for authenticated admin and dispatches
     Gmail SMTP emails and Twilio WhatsApp notifications silently on the server side via BackgroundTasks.
     """
+    try:
+        lat_val = float(payload.lat) if payload.lat is not None else 22.7240
+    except (ValueError, TypeError):
+        lat_val = 22.7240
+
+    try:
+        lng_val = float(payload.lng) if payload.lng is not None else 75.8650
+    except (ValueError, TypeError):
+        lng_val = 75.8650
+
     criminal_data = {
-        "name": payload.targetName,
-        "id": payload.targetId,
-        "crimeType": payload.crimeType,
-        "photo_url": payload.photo_url,
-        "risk_level": payload.risk_level,
-        "age": payload.age,
-        "ipc_charges": payload.ipc_charges
+        "name": str(payload.targetName) if payload.targetName is not None else "Unknown Suspect",
+        "id": str(payload.targetId) if payload.targetId is not None else "W-TARGET",
+        "crimeType": str(payload.crimeType) if payload.crimeType is not None else "Under Watchlist Surveillance",
+        "photo_url": str(payload.photo_url) if payload.photo_url is not None else "",
+        "risk_level": str(payload.risk_level) if payload.risk_level is not None else "Critical Risk",
+        "age": str(payload.age) if payload.age is not None else "32",
+        "ipc_charges": str(payload.ipc_charges) if payload.ipc_charges is not None else "IPC 302 / 395"
     }
-    lat_val = payload.lat if payload.lat is not None else 22.7240
-    lng_val = payload.lng if payload.lng is not None else 75.8650
     location_data = {
-        "cam_id": payload.cameraNode,
+        "cam_id": str(payload.cameraNode) if payload.cameraNode is not None else "WEB-Cam01",
         "lat": lat_val,
         "lng": lng_val
     }
@@ -394,8 +402,8 @@ async def auto_dispatch_criminal_alert(payload: AutoDispatchPayload, background_
     return {
         "status": "success",
         "message": "Alert Auto-Dispatched to Active Contacts via Background API",
-        "suspect_name": payload.targetName,
-        "suspect_id": payload.targetId,
+        "suspect_name": criminal_data["name"],
+        "suspect_id": criminal_data["id"],
         "lat": lat_val,
         "lng": lng_val,
         "gps_map_link": f"https://maps.google.com/?q={lat_val},{lng_val}",
